@@ -2,14 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://chuxiuhong.github.io/post/</loc>
-    <lastmod>2020-07-20T13:36:36+08:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
-    <loc>https://chuxiuhong.github.io/post/r2/</loc>
+    <loc>https://chuxiuhong.github.io/r2/</loc>
     <lastmod>2020-07-20T13:36:36+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
@@ -23,7 +16,7 @@
   </url>
   
   <url>
-    <loc>https://chuxiuhong.github.io/post/rrrr/</loc>
+    <loc>https://chuxiuhong.github.io/rrrr/</loc>
     <lastmod>2020-07-20T00:08:21+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
