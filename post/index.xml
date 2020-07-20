@@ -18,16 +18,8 @@
       
       <guid>http://localhost:1313/post/rrrr/</guid>
       <description>hello
-$x_3 + y^5 = \Sigma_n^{n+5}$</description>
-    </item>
-    
-    <item>
-      <title>My First Post2</title>
-      <link>http://localhost:1313/post/my-first-post2/</link>
-      <pubDate>Mon, 20 Jul 2020 00:03:21 +0800</pubDate>
-      
-      <guid>http://localhost:1313/post/my-first-post2/</guid>
-      <description></description>
+$x_3 + y^5 = \Sigma_n^{n+5}$
+5+6</description>
     </item>
     
   </channel>
