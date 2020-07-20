@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on 唯心不易</title>
+    <link>http://localhost:1313/post/</link>
+    <description>Recent content in Posts on 唯心不易</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Mon, 20 Jul 2020 00:08:21 +0800</lastBuildDate>
+    
+	<atom:link href="http://localhost:1313/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>rrrr</title>
+      <link>http://localhost:1313/post/rrrr/</link>
+      <pubDate>Mon, 20 Jul 2020 00:08:21 +0800</pubDate>
+      
+      <guid>http://localhost:1313/post/rrrr/</guid>
+      <description>hello
+$x_3 + y^5 = \Sigma_n^{n+5}$</description>
+    </item>
+    
+    <item>
+      <title>My First Post2</title>
+      <link>http://localhost:1313/post/my-first-post2/</link>
+      <pubDate>Mon, 20 Jul 2020 00:03:21 +0800</pubDate>
+      
+      <guid>http://localhost:1313/post/my-first-post2/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>
