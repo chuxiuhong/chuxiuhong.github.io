@@ -2,21 +2,30 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Posts on 唯心不易</title>
-    <link>http://localhost:1313/post/</link>
+    <link>https://chuxiuhong.github.io/post/</link>
     <description>Recent content in Posts on 唯心不易</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Mon, 20 Jul 2020 00:08:21 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 20 Jul 2020 13:36:36 +0800</lastBuildDate>
     
-	<atom:link href="http://localhost:1313/post/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://chuxiuhong.github.io/post/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
+      <title>R2</title>
+      <link>https://chuxiuhong.github.io/post/r2/</link>
+      <pubDate>Mon, 20 Jul 2020 13:36:36 +0800</pubDate>
+      
+      <guid>https://chuxiuhong.github.io/post/r2/</guid>
+      <description>r2 test</description>
+    </item>
+    
+    <item>
       <title>rrrr</title>
-      <link>http://localhost:1313/post/rrrr/</link>
+      <link>https://chuxiuhong.github.io/post/rrrr/</link>
       <pubDate>Mon, 20 Jul 2020 00:08:21 +0800</pubDate>
       
-      <guid>http://localhost:1313/post/rrrr/</guid>
+      <guid>https://chuxiuhong.github.io/post/rrrr/</guid>
       <description>hello
 $x_3 + y^5 = \Sigma_n^{n+5}$
 5+6</description>
