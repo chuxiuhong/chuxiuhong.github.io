@@ -1,2 +1,2 @@
 User-agent: *
-Sitemap: https://chuxiuhong.github.io/sitemap.xml
+Sitemap: http://chuxiuhong.com/sitemap.xml
