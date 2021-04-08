@@ -76,3 +76,6 @@ namespace testRustDll
 
 但是这种定义传到Rust里在转换UTF-8编码时十有八九会出问题，所以要单独再先做一个UTF-8的字节转换，将原来的字符串转换为一个UTF-8的字节数组传进去。
 
+## 参阅
+
+有大神专门做了Rust与c/c#/js/python/ruby/julia的FFI样例代码，并且是针对不同数据结构的样板，https://github.com/shepmaster/rust-ffi-omnibus
