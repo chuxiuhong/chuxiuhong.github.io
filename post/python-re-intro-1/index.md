@@ -1,5 +1,5 @@
 
-# Python 正则表达式入门（初级篇）
+
 
 本文主要为没有使用正则表达式经验的新手入门所写。
 转载请写明出处
@@ -250,4 +250,4 @@ print pattern1.findall(key)
 
 
 
-中级篇介绍子表达式，向前向后查找，回溯引用 链接：http://www.cnblogs.com/chuxiuhong/p/5907484.html
+中级篇介绍子表达式，向前向后查找，回溯引用 链接：https://chuxiuhong.com/post/python-re-intro-2/
