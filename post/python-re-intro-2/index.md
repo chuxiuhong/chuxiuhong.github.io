@@ -1,7 +1,7 @@
 
 
 
-初级篇链接：https://chuxiuhong.com/post/python-re-intro-1/
+初级篇链接：[https://chuxiuhong.com/post/python-re-intro-1/](https://chuxiuhong.com/post/python-re-intro-1/)
 
 上一篇我们说在这一篇里，我们会介绍子表达式，向前向后查找，回溯引用。到这一篇开始前除了回溯引用在一些场合不可替代以外，大部分情况下的正则表达式你应该都会写了。
 

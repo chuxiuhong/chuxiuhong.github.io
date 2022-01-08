@@ -250,4 +250,6 @@ print pattern1.findall(key)
 
 
 
-中级篇介绍子表达式，向前向后查找，回溯引用 链接：https://chuxiuhong.com/post/python-re-intro-2/
+中级篇介绍子表达式，向前向后查找，回溯引用 链接：[https://chuxiuhong.com/post/python-re-intro-2](https://chuxiuhong.com/post/python-re-intro-2/)
+
+
