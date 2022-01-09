@@ -1,0 +1,89 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>过滤器系列（二）—— Cuckoo filter - 唯心不易</title><meta name=renderer content="webkit"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content="no-transform"><meta http-equiv=cache-control content="no-siteapp"><meta name=theme-color content="#f8f5ec"><meta name=msapplication-navbutton-color content="#f8f5ec"><meta name=apple-mobile-web-app-capable content="yes"><meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec"><meta name=author content="chuxiuhong"><meta name=description content="这一篇讲的是布谷过滤器(cuckoo fliter)，这个名字来源于更早发表的布谷散列(cuckoo hash)，尽管我也不知道为什么当初要给这"><meta name=keywords content="Hugo,theme,even"><meta name=generator content="Hugo 0.74.2 with theme even"><link rel=canonical href=http://chuxiuhong.com/post/cuckoo-filter/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=manifest href=/manifest.json><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link href=/sass/main.min.78f8f17bab244b9ee62ad16480c9584d5fc2db06ae20681d1ca225cefd80767c.css rel=stylesheet><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous><meta property="og:title" content="过滤器系列（二）—— Cuckoo filter"><meta property="og:description" content="这一篇讲的是布谷过滤器(cuckoo fliter)，这个名字来源于更早发表的布谷散列(cuckoo hash)，尽管我也不知道为什么当初要给这"><meta property="og:type" content="article"><meta property="og:url" content="http://chuxiuhong.com/post/cuckoo-filter/"><meta property="article:published_time" content="2018-01-06T23:29:20+08:00"><meta property="article:modified_time" content="2018-01-06T23:29:20+08:00"><meta itemprop=name content="过滤器系列（二）—— Cuckoo filter"><meta itemprop=description content="这一篇讲的是布谷过滤器(cuckoo fliter)，这个名字来源于更早发表的布谷散列(cuckoo hash)，尽管我也不知道为什么当初要给这"><meta itemprop=datePublished content="2018-01-06T23:29:20+08:00"><meta itemprop=dateModified content="2018-01-06T23:29:20+08:00"><meta itemprop=wordCount content="2331"><meta itemprop=keywords content="过滤器,"><meta name=twitter:card content="summary"><meta name=twitter:title content="过滤器系列（二）—— Cuckoo filter"><meta name=twitter:description content="这一篇讲的是布谷过滤器(cuckoo fliter)，这个名字来源于更早发表的布谷散列(cuckoo hash)，尽管我也不知道为什么当初要给这"><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script><script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]--></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=/ class=logo>唯心不易</a></div><div class=mobile-navbar-icon><span></span><span></span><span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=/><li class=mobile-menu-item>主页</li></a><a href=/post/><li class=mobile-menu-item>归档</li></a><a href=/tags/><li class=mobile-menu-item>标签</li></a><a href=/categories/><li class=mobile-menu-item>分类</li></a><a href=/about/><li class=mobile-menu-item>关于我</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=/ class=logo>唯心不易</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=/>主页</a></li><li class=menu-item><a class=menu-item-link href=/post/>归档</a></li><li class=menu-item><a class=menu-item-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-item-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-item-link href=/about/>关于我</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>过滤器系列（二）—— Cuckoo filter</h1><div class=post-meta><span class=post-time>2018-01-06</span></div></header><div class=post-toc id=post-toc><h2 class=post-toc-title>文章目录</h2><div class="post-toc-content always-active"><nav id=TableOfContents></nav></div></div><div class=post-content><p>这一篇讲的是布谷过滤器(cuckoo fliter)，这个名字来源于更早发表的布谷散列(cuckoo hash)，尽管我也不知道为什么当初要给这种散列表起个鸟名=_=</p><p>由于布谷过滤器本身的思想就源自于布谷散列，那么我们就从布谷散列开始说它的设计思想。产生布谷散列表的一个重要背景是人们对于球盒问题的分析：给定N个球，随机的放在N个盒子里，在装球最多的盒子里，球的个数的期望是多少？答案是$\Theta (logN/loglogN)$，这个问题其实就是散列表装填因子为1时的情况分析。后来有一天，人们发现：每次放球的时候，如果随机选择两个盒子，将球放到当时较空的那个盒子里，那么这个期望就变成了$\Theta (loglogN)$，这个界小于之前的界，这给了布谷散列表作者启发。</p><p>一个布谷散列表通常有两张（一般来说）表，分别有一个对应的Hash函数，当有新的项插入的时候，它会计算出这个项在两张表中对应的两个位置，这个项一定会被存在这两个位置之一，而具体是哪一个却不确定。</p><p>下图是一个布谷散列表的初始化示意图：</p><p><img src=/static/cuckoo0.png alt=image></p><p>现在我们假设有一些项要存入散列表，其每个项都有其对应的两个位置，先插入第一项A</p><p><img src=/static/cuckoo_A.png alt=image></p><p>由于插入A的时候其两个候选位置（0,2）都没有占用，所以选择第一张表或者是第二张表都可以，我们在这里默认先选择第一张表，然后插入第二项B
+<img src=/static/cuckoo_B.png alt=image></p><p>我们看到原来的A的位置被B占用，而A被“踢”到它的备选位置表二的2号位置上了，这就是当发生位置冲突时，布谷散列表的处理逻辑，后来的数据项将会把之前占用的项踢到另一个位置上。我们接下来插入第三项C</p><p><img src=/static/cuckoo_C.png alt=image>
+没有冲突，顺利搞定，接着插入D</p><p><img src=/static/cuckoo_D.png alt=image>
+D成功的把C踢走了，其实看到这里读者应该在猜想，会不会有一种情况，即被踢走的数据的另一个备选位置也被占用了，这样怎么办？答案是继续踢，一个踢一个，直到大家都找到自己合适的归宿为止。那么如果发现出现了循环怎么办？答案是GG，这代表布谷散列表走到了极限</p><p><img src=/static/cuckoo_E.png alt=image>
+插入E</p><p><img src=/static/cuckoo_F.png alt=image>
+这里就发生了多次替换的情况，F代替了E，E代替了A，A代替了B，B找到了空余的位子</p><p>读者可以考虑一下，如果这个时候要想插入一个“G”，其备选位置是1,2，这样的话会出现什么情况？</p><p>好了，布谷散列表大概介绍完了，现在该布谷过滤器了。布谷过滤器的主要也是通过布谷散列来实现的，其主要变化是：
+1.我们不将原来的数据完整的存进来，作为过滤器，当然要省点空间，选用的办法设计一个指纹，将比较大的原数据变成了一个个指纹串，这样就大大节省了空间。
+2.由于第一点所说，存储的不是原数据，那么在替换位置的时候，我们需要再次计算原来的数据的备选位置，这样一来布谷散列表的方法就失效了。在这里，作者设计了一个方法，他将两个Hash函数变成了一个Hash函数，第一张表的备选位置是Hash(x),第二张表的备选位置是$Hash(x) \oplus hash(fingerprint(x))$，即第一张表的位置与存储的指纹的Hash值做异或运算。这样做的优点就是不用再另外存储元素的备选位置，在替换时，可以直接用异或来计算出其另一个备选位置。（读者可以想想如何通过表二的位置计算出元素在表一中的位置）
+3.插入时，优先选择空位置，而不是尽可能的踢走其他元素。</p><p>插入伪代码如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-fallback data-lang=fallback>Algorithm 1: Insert(x)
+
+f = fingerprint(x)
+i1 = hash(x)
+i2 = i1 xor hash(f)
+if bucket[i1] or bucket[i2] has an empty entry then
+    //只要有空位就先插入空位里
+    add f to that bucket
+    return Done
+i  = randomly pick i1 or i2
+for n=0;n&lt;MaxNumKicks;++n
+    randomly select an entry e from bucket[i];
+    swap f and the fingerprint stored in entry e;
+    i = i xor hash(f)
+    if bucket[i] has an empty entry then
+        add f to bucket[i]
+        return Done
+return Failure // 已经出现循环情况了
+</code></pre></td></tr></table></div></div><p>查找伪代码如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-fallback data-lang=fallback>Algorithm 2: Lookup(x)
+f = fingerprint(x)
+i1 = hash(x)
+i2 = i1 xor hash(f)
+if bucket[i1] or bucket[i2] has f then
+    return True
+return False
+</code></pre></td></tr></table></div></div><p>删除伪代码如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-fallback data-lang=fallback>Algorithm 3: Delete(x)
+
+f = fingerprint(x)
+i1 = hash(x)
+i2 = i1 xor hash(f)
+if bucket[i1] or bucket[i2] has f then
+    remove a copy of f from this bucket
+return False
+</code></pre></td></tr></table></div></div><p>删除这部分值得注意，当被删除元素的另一个备选位置有其他元素的指纹的时候，我们不能确定到底哪一个是要删除的元素，其实我们也不去关心到底是不是要删除的元素，我们直接删除掉其中的一个。这样一来，我们其实并没有真正的删除掉元素，为什么这么说，因为当你删除掉这个元素的时候我们再查找这个元素，按照算法来看我们还是一样能检索出来这个元素在我们的布谷过滤器里，这就是假阳率的其中一个来源（还有一个重要来源是指纹构造的重复，即多个元素产生相同指纹）</p><p>下面我们来分析一下布谷过滤器的平均每个元素占用的比特数，设每个桶里装$b$个指纹，要求错误率的上界为$\epsilon$，$f$为指纹长度。</p><p>错误率的上界 = $1-(1-1/2^f)^{2b} \approx 2b/2^f$</p><p>那么这个上界要求小于要求的上界，即$2b/2^f \le \epsilon$，得到</p><p>$f \ge log_2^{2b/\epsilon} = log_2^{1/\epsilon} + log_2^{2b}$</p><p>则平均每个元素占用的比特数为$C \le (log_2^{1/\epsilon} + log_2^{2b}) / \alpha$</p><p>在原论文中，作者其实后面还做了一个比较强行的优化，在此不提，后面设计其他过滤器的作者也没有把这个优化算数。。。。不过作者提到了在实际测试中，他们发现当b=4的时候是空间性能最好的情况，所以一般说来，我们直接把b当做常数4，代入到前面算出来的公式中，</p><p>$C \le (log_2^{1/\epsilon} + 3) / \alpha$</p><p>布谷过滤器就说到这，布谷过滤器在错误率小于3%的时候空间性能是优于布隆过滤器的，而这个条件在实际应用中常常满足，所以一般来说它的空间性能是要优于布隆过滤器的。而且，布谷过滤器按照普通设计，只有两个桶，在查找的时候可以确保两次访存就可以做完，相比于布隆过滤器的K个Hash函数K次访存，在数据量很大不能全部装载在内存中的情况下，多一次访存那么时间上就输了。不过说完优点，布谷过滤器也有其相应的缺点，当装填因子较高的时候，容易出现循环的问题，即插入失败的情况，到这时就很难办。另外，它还有跟布隆过滤器共有的一个缺点，就是访问空间地址不连续，通常可以认为是随机的，这样严重破坏了程序局部性，对于Cache流水线来说非常不利，这为之后的过滤器设计埋下了一个伏笔。</p></div><div class=post-copyright><p class=copyright-item><span class=item-title>文章作者</span>
+<span class=item-content>chuxiuhong</span></p><p class=copyright-item><span class=item-title>上次更新</span>
+<span class=item-content>2018-01-06</span></p><p class=copyright-item><span class=item-title>许可协议</span>
+<span class=item-content><a rel="license noopener" href=https://creativecommons.org/licenses/by-nc-nd/4.0/ target=_blank>CC BY-NC-ND 4.0</a></span></p></div><footer class=post-footer><div class=post-tags><a href=/tags/%E8%BF%87%E6%BB%A4%E5%99%A8/>过滤器</a></div><nav class=post-nav><a class=prev href=/post/rsqf-filter/><i class="iconfont icon-left"></i><span class="prev-text nav-default">过滤器系列（三）—— RSQF</span>
+<span class="prev-text nav-mobile">上一篇</span></a>
+<a class=next href=/post/bloom-filter/><span class="next-text nav-default">过滤器系列（一）—— Bloom filter</span>
+<span class="next-text nav-mobile">下一篇</span>
+<i class="iconfont icon-right"></i></a></nav></footer></article></div><script src=https://utteranc.es/client.js repo=chuxiuhong/blog_comment issue-term=pathname theme=github-light crossorigin=anonymous async></script><noscript>Please enable JavaScript to view the <a href=https://github.com/utterance>comments powered by utterances.</a></noscript></div></main><footer id=footer class=footer><div class=social-links><a href=mailto:chuxiuhong@chuxiuhong.com class="iconfont icon-email" title=email></a><a href=http://github.com/chuxiuhong class="iconfont icon-github" title=github></a><a href=http://chuxiuhong.com/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a></div><div class=copyright><span class=power-by>由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动</span>
+<span class=division>|</span>
+<span class=theme-info>主题 -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a></span>
+<span class=copyright-year>&copy;
+2020 -
+2022
+<span class=heart><i class="iconfont icon-heart"></i></span><span class=author>chuxiuhong</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script><script type=text/javascript src=/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js></script><script type=text/javascript>window.MathJax={tex2jax:{inlineMath:[['$','$'],['\\(','\\)']]},showProcessingMessages:false,messageStyle:'none'};</script><script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin=anonymous></script></body></html>

@@ -1,0 +1,99 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>用树莓派从零开始做一个家庭监控 - 唯心不易</title><meta name=renderer content="webkit"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content="no-transform"><meta http-equiv=cache-control content="no-siteapp"><meta name=theme-color content="#f8f5ec"><meta name=msapplication-navbutton-color content="#f8f5ec"><meta name=apple-mobile-web-app-capable content="yes"><meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec"><meta name=author content="chuxiuhong"><meta name=description content="先说好，我们的家庭监控是每分钟的照片的监控，并不是真正的实时视频，这种实时视频树莓派性能可能不够。 我们这一次工程的大体步骤： 硬件准备 我们至少"><meta name=keywords content="Hugo,theme,even"><meta name=generator content="Hugo 0.74.2 with theme even"><link rel=canonical href=http://chuxiuhong.com/post/shumeipai/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=manifest href=/manifest.json><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link href=/sass/main.min.78f8f17bab244b9ee62ad16480c9584d5fc2db06ae20681d1ca225cefd80767c.css rel=stylesheet><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous><meta property="og:title" content="用树莓派从零开始做一个家庭监控"><meta property="og:description" content="先说好，我们的家庭监控是每分钟的照片的监控，并不是真正的实时视频，这种实时视频树莓派性能可能不够。 我们这一次工程的大体步骤： 硬件准备 我们至少"><meta property="og:type" content="article"><meta property="og:url" content="http://chuxiuhong.com/post/shumeipai/"><meta property="article:published_time" content="2016-12-19T09:14:20+08:00"><meta property="article:modified_time" content="2016-12-19T09:14:20+08:00"><meta itemprop=name content="用树莓派从零开始做一个家庭监控"><meta itemprop=description content="先说好，我们的家庭监控是每分钟的照片的监控，并不是真正的实时视频，这种实时视频树莓派性能可能不够。 我们这一次工程的大体步骤： 硬件准备 我们至少"><meta itemprop=datePublished content="2016-12-19T09:14:20+08:00"><meta itemprop=dateModified content="2016-12-19T09:14:20+08:00"><meta itemprop=wordCount content="1858"><meta itemprop=keywords content="Python,树莓派,"><meta name=twitter:card content="summary"><meta name=twitter:title content="用树莓派从零开始做一个家庭监控"><meta name=twitter:description content="先说好，我们的家庭监控是每分钟的照片的监控，并不是真正的实时视频，这种实时视频树莓派性能可能不够。 我们这一次工程的大体步骤： 硬件准备 我们至少"><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script><script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]--></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=/ class=logo>唯心不易</a></div><div class=mobile-navbar-icon><span></span><span></span><span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=/><li class=mobile-menu-item>主页</li></a><a href=/post/><li class=mobile-menu-item>归档</li></a><a href=/tags/><li class=mobile-menu-item>标签</li></a><a href=/categories/><li class=mobile-menu-item>分类</li></a><a href=/about/><li class=mobile-menu-item>关于我</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=/ class=logo>唯心不易</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=/>主页</a></li><li class=menu-item><a class=menu-item-link href=/post/>归档</a></li><li class=menu-item><a class=menu-item-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-item-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-item-link href=/about/>关于我</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>用树莓派从零开始做一个家庭监控</h1><div class=post-meta><span class=post-time>2016-12-19</span></div></header><div class=post-toc id=post-toc><h2 class=post-toc-title>文章目录</h2><div class="post-toc-content always-active"><nav id=TableOfContents><ul><li><a href=#硬件准备>硬件准备</a></li><li><a href=#安装系统和基本设置>安装系统和基本设置</a></li><li><a href=#准备七牛云>准备七牛云</a></li><li><a href=#代码>代码</a></li></ul></nav></div></div><div class=post-content><hr><p>先说好，我们的家庭监控是每分钟的照片的监控，并不是真正的实时视频，这种实时视频树莓派性能可能不够。</p><p>我们这一次工程的大体步骤：
+<img src=/static/20161218215526.png alt=image0></p><h2 id=硬件准备>硬件准备</h2><p>我们至少需要一个树莓派3，树莓派的摄像头，一个tf卡（16G，class10的比较推荐），出于便于传数据，你最好还有读卡器或者SD卡套，常用的USB鼠标，USB键盘，HDMI接口的显示器（这个有则最好，没有会麻烦但是也能搞定，我默认你有）</p><p>首先看看我们的树莓派长成什么样子：</p><p><img src=/static/IMG_0643.JPG alt=image1></p><p>它有四个USB接口，一个网线口，一个HDMI接口，一个摄像头的接口，还有电源口，还有一些不是很常用的口，以及GPIO。</p><p>看看我们的摄像头长成什么样子</p><p><img src=/static/IMG_0644.JPG alt=image2></p><p>很简单的一个小摄像头，大概500W像素，淘宝一般卖35左右。</p><p>除了上面的两个我们要求是统一的，至于键盘鼠标显示器我都不管你用的什么型号的。</p><h2 id=安装系统和基本设置>安装系统和基本设置</h2><p>安装系统这方面的教程网上实在是太多了，不需要搜英文的资料，只需看看百度的结果就可以完美解决。下面我默认树莓派上的系统已经做完了。</p><p>在树莓派上进入终端（如果选择debian系统的话，和Ubuntu的操作基本一样），执行</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-fallback data-lang=fallback>sudo raspi-config
+</code></pre></td></tr></table></div></div><p>出现下面的页面</p><p><img src=/static/raspiconfig.png alt=image3></p><p>先选择第一项，扩充文件系统，让树莓派可以完全的占有你的tf卡。完事之后可能需要重启，重启之后我们还是执行上述命令，然后还是来到这个页面，选择选择第五项，然后一直选OK，打开摄像头的接口。</p><p>然后我们关机</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-fallback data-lang=fallback>sudo shutdown -h now
+</code></pre></td></tr></table></div></div><p>或者是干脆直接断电源其实也没有问题。</p><p><strong>警告!!!!!!!!!!!!!!!!!!!!!!!!!</strong>
+绝对不可以带着电源的情况下插入摄像头，如果带电操作，十之八九你的摄像头会GG，博主血泪教训。而且摄像头GG了之后每次调用还是会亮灯，只是你接受不到数据，这个问题我已经Google了很长时间，老外们也是一脸懵逼，大家普遍认为应该是被烧坏了= =</p><p>我们把摄像头插到树莓派上，如图：</p><p><img src=/static/IMG_0638.JPG alt=image5></p><p><img src=/static/IMG_0647.JPG alt=image6></p><p>需要将摄像头底下那个蓝色的一面朝向USB接口那个方向，不要插反了。</p><p>等到你都安装完毕了，确保连接好各个硬件之后再给电源。（千万记得不要热插拔摄像头）</p><h2 id=准备七牛云>准备七牛云</h2><p>为什么非常突兀的在这里提到七牛云，原因是我们总需要一个存储监控的数据的空间，自己写一个简单的服务器代码也是可以，不过云服务器现在便宜的带宽太小，贵的我们穷苦学生又玩不起，不如用一个七牛云，简单还免费。（实名注册用户拥有10G免费空间，题主markdown的图片外链都是拿这儿做的）</p><p>首先我们来到七牛云官网，注册账号 <a href=http://www.qiniu.com/>http://www.qiniu.com/</a></p><p>登录之后，如图操作</p><p><img src=/static/qiniu1.png alt=image6></p><p><img src=/static/qiniu2.png alt=image7></p><p><img src=/static/qiniu3.png alt=image8></p><p>把这这个密钥对存起来，我们一会用</p><p><img src=/static/qiniu4.png alt=image9></p><p>我们需要新建一个仓库，点开之后自己任意选节点，其实国内的几个节点速度都差不多，完全可以满足需求。</p><p>以后我们获取的监控照片就可以来这里查询</p><h2 id=代码>代码</h2><p>下面的代码既可以现在本地上写之后再用github克隆过去或者是U盘copy过去，或者是直接在树莓派上写都可以，不过记得如果是前者，那么安装第三方库和配置东西要同步配置。</p><p>首先，我们写一个.sh脚本
+take_photo.sh</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-fallback data-lang=fallback>raspistill -o current_photo.jpg
+python test.py
+</code></pre></td></tr></table></div></div><p>然后安装七牛云的python SDK，在命令行内执行</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-fallback data-lang=fallback>sudo pip install qiniu
+</code></pre></td></tr></table></div></div><p>在take_photo.sh同目录下我们建立一个test.py</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-python data-lang=python><span class=c1># -*- coding: utf-8 -*-</span>
+
+<span class=kn>import</span> <span class=nn>time</span>
+<span class=kn>from</span> <span class=nn>qiniu</span> <span class=kn>import</span> <span class=n>Auth</span><span class=p>,</span> <span class=n>put_file</span><span class=p>,</span> <span class=n>etag</span><span class=p>,</span> <span class=n>urlsafe_base64_encode</span>
+<span class=kn>import</span> <span class=nn>qiniu.config</span>
+<span class=kn>import</span> <span class=nn>os</span>
+<span class=c1>#需要填写你的 Access Key 和 Secret Key</span>
+<span class=n>access_key</span> <span class=o>=</span> <span class=s1>&#39;&#39;</span> <span class=c1>#这里的密钥填上刚才我让你记住的密钥对</span>
+<span class=n>secret_key</span> <span class=o>=</span> <span class=s1>&#39;&#39;</span> <span class=c1>#这里的密钥填上刚才我让你记住的密钥对</span>
+
+<span class=c1>#构建鉴权对象</span>
+<span class=n>q</span> <span class=o>=</span> <span class=n>Auth</span><span class=p>(</span><span class=n>access_key</span><span class=p>,</span> <span class=n>secret_key</span><span class=p>)</span>
+
+<span class=c1>#要上传的空间</span>
+<span class=n>bucket_name</span> <span class=o>=</span> <span class=s1>&#39;mypi&#39;</span>
+
+<span class=c1>#上传到七牛后保存的文件名</span>
+<span class=n>key</span> <span class=o>=</span> <span class=s1>&#39;</span><span class=si>%s</span><span class=s1>_</span><span class=si>%s</span><span class=s1>_</span><span class=si>%s</span><span class=s1>_</span><span class=si>%s</span><span class=s1>_</span><span class=si>%s</span><span class=s1>_</span><span class=si>%s</span><span class=s1>.jpg&#39;</span><span class=o>%</span><span class=p>(</span><span class=n>time</span><span class=o>.</span><span class=n>localtime</span><span class=p>()[</span><span class=mi>0</span><span class=p>],</span><span class=n>time</span><span class=o>.</span><span class=n>localtime</span><span class=p>()[</span><span class=mi>1</span><span class=p>],</span><span class=n>time</span><span class=o>.</span><span class=n>localtime</span><span class=p>()[</span><span class=mi>2</span><span class=p>],</span><span class=n>time</span><span class=o>.</span><span class=n>localtime</span><span class=p>()[</span><span class=mi>3</span><span class=p>],</span><span class=n>time</span><span class=o>.</span><span class=n>localtime</span><span class=p>()[</span><span class=mi>4</span><span class=p>],</span><span class=n>time</span><span class=o>.</span><span class=n>localtime</span><span class=p>()[</span><span class=mi>5</span><span class=p>])</span>
+
+<span class=c1>#生成上传 Token，可以指定过期时间等</span>
+<span class=n>token</span> <span class=o>=</span> <span class=n>q</span><span class=o>.</span><span class=n>upload_token</span><span class=p>(</span><span class=n>bucket_name</span><span class=p>,</span> <span class=n>key</span><span class=p>,</span> <span class=mi>3600</span><span class=p>)</span>
+
+<span class=c1>#要上传文件的本地路径</span>
+<span class=n>localfile</span> <span class=o>=</span> <span class=s1>&#39;current_photo.jpg&#39;</span>
+
+<span class=n>ret</span><span class=p>,</span> <span class=n>info</span> <span class=o>=</span> <span class=n>put_file</span><span class=p>(</span><span class=n>token</span><span class=p>,</span> <span class=n>key</span><span class=p>,</span> <span class=n>localfile</span><span class=p>)</span>
+
+<span class=n>filename</span> <span class=o>=</span> <span class=s1>&#39;current_photo.jpg&#39;</span>
+<span class=k>if</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>exists</span><span class=p>(</span><span class=n>filename</span><span class=p>):</span>
+    <span class=n>os</span><span class=o>.</span><span class=n>remove</span><span class=p>(</span><span class=n>filename</span><span class=p>)</span>
+</code></pre></td></tr></table></div></div><p>这样一来，我们每次执行take_photo.sh脚本，都可以让树莓派拍一张照片并且发送到七牛云上，我们只需登录就能看见下面这样的数据</p><p><img src=/static/qiniu5.png alt=image10>
+文件命名是以年月日时分秒的方式命名的</p><p>但是这样我们总不可能手动的一次次执行，那样也不叫监控了。最简单的想法，我们可以利用Linux的定时任务crontab管理这个脚本</p><p>进入命令行，执行</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-fallback data-lang=fallback>crontab -e
+</code></pre></td></tr></table></div></div><p><img src=/static/crontab.png alt=image11>
+在末尾追加上</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-fallback data-lang=fallback>* * * * * /home/pi/take_photo.sh
+</code></pre></td></tr></table></div></div><p>然后按Ctrl+x，按Y，保存修改。
+之后重启cron</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-fallback data-lang=fallback>sudo service cron restart
+</code></pre></td></tr></table></div></div><p>然后我们的定时监控就完成了！把它安放到想要的位置，它会每分钟拍下照片并且发送到七牛云，你可以使用七牛云的本地同步工具qshell来方便的查看更新照片。</p><p>qshell使用教程 <a href=http://developer.qiniu.com/code/v6/tool/qshell.html>http://developer.qiniu.com/code/v6/tool/qshell.html</a></p><p>写代码的时候自动拍摄的样图：
+<img src=/static/2016_12_18_21_14_7.jpg alt=image12></p><p><img src=/static/2016_12_18_16_57_53.jpg alt=image13></p><p>其实本文涉及的内容仅仅是我们一门课程中的小项目三分之一的部分，原本的用途也不是作为家庭监控的，但拿出来与大家分享，无论你是从头到尾实现这个监控器，还是取一小段用于他途，只要有帮助就好。</p><p>博客保持更新，愿意来定时看我脑洞的，请关注我</p></div><div class=post-copyright><p class=copyright-item><span class=item-title>文章作者</span>
+<span class=item-content>chuxiuhong</span></p><p class=copyright-item><span class=item-title>上次更新</span>
+<span class=item-content>2016-12-19</span></p><p class=copyright-item><span class=item-title>许可协议</span>
+<span class=item-content><a rel="license noopener" href=https://creativecommons.org/licenses/by-nc-nd/4.0/ target=_blank>CC BY-NC-ND 4.0</a></span></p></div><footer class=post-footer><div class=post-tags><a href=/tags/python/>Python</a>
+<a href=/tags/%E6%A0%91%E8%8E%93%E6%B4%BE/>树莓派</a></div><nav class=post-nav><a class=prev href=/post/rsa/><i class="iconfont icon-left"></i><span class="prev-text nav-default">RSA加解密实现</span>
+<span class="prev-text nav-mobile">上一篇</span></a>
+<a class=next href=/post/cnn-svm/><span class="next-text nav-default">卷积神经网络提取特征并用于SVM</span>
+<span class="next-text nav-mobile">下一篇</span>
+<i class="iconfont icon-right"></i></a></nav></footer></article></div><script src=https://utteranc.es/client.js repo=chuxiuhong/blog_comment issue-term=pathname theme=github-light crossorigin=anonymous async></script><noscript>Please enable JavaScript to view the <a href=https://github.com/utterance>comments powered by utterances.</a></noscript></div></main><footer id=footer class=footer><div class=social-links><a href=mailto:chuxiuhong@chuxiuhong.com class="iconfont icon-email" title=email></a><a href=http://github.com/chuxiuhong class="iconfont icon-github" title=github></a><a href=http://chuxiuhong.com/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a></div><div class=copyright><span class=power-by>由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动</span>
+<span class=division>|</span>
+<span class=theme-info>主题 -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a></span>
+<span class=copyright-year>&copy;
+2020 -
+2022
+<span class=heart><i class="iconfont icon-heart"></i></span><span class=author>chuxiuhong</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script><script type=text/javascript src=/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js></script><script type=text/javascript>window.MathJax={tex2jax:{inlineMath:[['$','$'],['\\(','\\)']]},showProcessingMessages:false,messageStyle:'none'};</script><script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin=anonymous></script></body></html>
