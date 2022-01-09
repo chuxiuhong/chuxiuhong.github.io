@@ -1,0 +1,592 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>听歌识曲--用python实现一个音乐检索器 - 唯心不易</title><meta name=renderer content="webkit"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content="no-transform"><meta http-equiv=cache-control content="no-siteapp"><meta name=theme-color content="#f8f5ec"><meta name=msapplication-navbutton-color content="#f8f5ec"><meta name=apple-mobile-web-app-capable content="yes"><meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec"><meta name=author content="chuxiuhong"><meta name=description content="听歌识曲，顾名思义，用设备“听”歌曲，然后它要告诉你这是首什么歌。而且十之八九它还得把这首歌给你播放出来。这样的功能在QQ音乐等应用上早就出"><meta name=keywords content="Hugo,theme,even"><meta name=generator content="Hugo 0.74.2 with theme even"><link rel=canonical href=http://chuxiuhong.com/post/shazam/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=manifest href=/manifest.json><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link href=/sass/main.min.78f8f17bab244b9ee62ad16480c9584d5fc2db06ae20681d1ca225cefd80767c.css rel=stylesheet><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous><meta property="og:title" content="听歌识曲--用python实现一个音乐检索器"><meta property="og:description" content="听歌识曲，顾名思义，用设备“听”歌曲，然后它要告诉你这是首什么歌。而且十之八九它还得把这首歌给你播放出来。这样的功能在QQ音乐等应用上早就出"><meta property="og:type" content="article"><meta property="og:url" content="http://chuxiuhong.com/post/shazam/"><meta property="article:published_time" content="2016-11-14T21:51:20+08:00"><meta property="article:modified_time" content="2016-11-14T21:51:20+08:00"><meta itemprop=name content="听歌识曲--用python实现一个音乐检索器"><meta itemprop=description content="听歌识曲，顾名思义，用设备“听”歌曲，然后它要告诉你这是首什么歌。而且十之八九它还得把这首歌给你播放出来。这样的功能在QQ音乐等应用上早就出"><meta itemprop=datePublished content="2016-11-14T21:51:20+08:00"><meta itemprop=dateModified content="2016-11-14T21:51:20+08:00"><meta itemprop=wordCount content="3293"><meta itemprop=keywords content><meta name=twitter:card content="summary"><meta name=twitter:title content="听歌识曲--用python实现一个音乐检索器"><meta name=twitter:description content="听歌识曲，顾名思义，用设备“听”歌曲，然后它要告诉你这是首什么歌。而且十之八九它还得把这首歌给你播放出来。这样的功能在QQ音乐等应用上早就出"><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script><script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]--></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=/ class=logo>唯心不易</a></div><div class=mobile-navbar-icon><span></span><span></span><span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=/><li class=mobile-menu-item>主页</li></a><a href=/post/><li class=mobile-menu-item>归档</li></a><a href=/tags/><li class=mobile-menu-item>标签</li></a><a href=/categories/><li class=mobile-menu-item>分类</li></a><a href=/about/><li class=mobile-menu-item>关于我</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=/ class=logo>唯心不易</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=/>主页</a></li><li class=menu-item><a class=menu-item-link href=/post/>归档</a></li><li class=menu-item><a class=menu-item-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-item-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-item-link href=/about/>关于我</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>听歌识曲--用python实现一个音乐检索器</h1><div class=post-meta><span class=post-time>2016-11-14</span></div></header><div class=post-toc id=post-toc><h2 class=post-toc-title>文章目录</h2><div class="post-toc-content always-active"><nav id=TableOfContents><ul><li><a href=#录音部分>录音部分</a></li><li><a href=#音频处理部分>音频处理部分</a></li><li><a href=#数据存储和检索部分>数据存储和检索部分</a></li><li><a href=#总结>总结</a></li></ul></nav></div></div><div class=post-content><hr><p>听歌识曲，顾名思义，用设备“听”歌曲，然后它要告诉你这是首什么歌。而且十之八九它还得把这首歌给你播放出来。这样的功能在QQ音乐等应用上早就出现了。我们今天来自己动手做一个自己的听歌识曲
+我们设计的总体流程图很简单：</p><p><img src=/static/audio_14.png alt=image00></p><hr><h2 id=录音部分>录音部分</h2><p>我们要想“听”，就必须先有录音的过程。在我们的实验中，我们的曲库也要用我们的录音代码来进行录音，然后提取特征存进数据库。我们用下面这样的思路来录音
+<img src=/static/tinggeshiqu_000.png alt=image1></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-python data-lang=python><span class=c1># coding=utf8</span>
+<span class=kn>import</span> <span class=nn>wave</span>
+
+<span class=kn>import</span> <span class=nn>pyaudio</span>
+
+
+<span class=k>class</span> <span class=nc>recode</span><span class=p>():</span>
+    <span class=k>def</span> <span class=nf>recode</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>CHUNK</span><span class=o>=</span><span class=mi>44100</span><span class=p>,</span> <span class=n>FORMAT</span><span class=o>=</span><span class=n>pyaudio</span><span class=o>.</span><span class=n>paInt16</span><span class=p>,</span> <span class=n>CHANNELS</span><span class=o>=</span><span class=mi>2</span><span class=p>,</span> <span class=n>RATE</span><span class=o>=</span><span class=mi>44100</span><span class=p>,</span> <span class=n>RECORD_SECONDS</span><span class=o>=</span><span class=mi>200</span><span class=p>,</span>
+               <span class=n>WAVE_OUTPUT_FILENAME</span><span class=o>=</span><span class=s2>&#34;record.wav&#34;</span><span class=p>):</span>
+        <span class=s1>&#39;&#39;&#39;
+</span><span class=s1>
+</span><span class=s1>        :param CHUNK: 缓冲区大小
+</span><span class=s1>        :param FORMAT: 采样大小
+</span><span class=s1>        :param CHANNELS:通道数
+</span><span class=s1>        :param RATE:采样率
+</span><span class=s1>        :param RECORD_SECONDS:录的时间
+</span><span class=s1>        :param WAVE_OUTPUT_FILENAME:输出文件路径
+</span><span class=s1>        :return:
+</span><span class=s1>        &#39;&#39;&#39;</span>
+        <span class=n>p</span> <span class=o>=</span> <span class=n>pyaudio</span><span class=o>.</span><span class=n>PyAudio</span><span class=p>()</span>
+        <span class=n>stream</span> <span class=o>=</span> <span class=n>p</span><span class=o>.</span><span class=n>open</span><span class=p>(</span><span class=n>format</span><span class=o>=</span><span class=n>FORMAT</span><span class=p>,</span>
+                        <span class=n>channels</span><span class=o>=</span><span class=n>CHANNELS</span><span class=p>,</span>
+                        <span class=n>rate</span><span class=o>=</span><span class=n>RATE</span><span class=p>,</span>
+                        <span class=nb>input</span><span class=o>=</span><span class=bp>True</span><span class=p>,</span>
+                        <span class=n>frames_per_buffer</span><span class=o>=</span><span class=n>CHUNK</span><span class=p>)</span>
+        <span class=n>frames</span> <span class=o>=</span> <span class=p>[]</span>
+        <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=nb>int</span><span class=p>(</span><span class=n>RATE</span> <span class=o>/</span> <span class=n>CHUNK</span> <span class=o>*</span> <span class=n>RECORD_SECONDS</span><span class=p>)):</span>
+            <span class=n>data</span> <span class=o>=</span> <span class=n>stream</span><span class=o>.</span><span class=n>read</span><span class=p>(</span><span class=n>CHUNK</span><span class=p>)</span>
+            <span class=n>frames</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
+        <span class=n>stream</span><span class=o>.</span><span class=n>stop_stream</span><span class=p>()</span>
+        <span class=n>stream</span><span class=o>.</span><span class=n>close</span><span class=p>()</span>
+        <span class=n>p</span><span class=o>.</span><span class=n>terminate</span><span class=p>()</span>
+        <span class=n>wf</span> <span class=o>=</span> <span class=n>wave</span><span class=o>.</span><span class=n>open</span><span class=p>(</span><span class=n>WAVE_OUTPUT_FILENAME</span><span class=p>,</span> <span class=s1>&#39;wb&#39;</span><span class=p>)</span>
+        <span class=n>wf</span><span class=o>.</span><span class=n>setnchannels</span><span class=p>(</span><span class=n>CHANNELS</span><span class=p>)</span>
+        <span class=n>wf</span><span class=o>.</span><span class=n>setsampwidth</span><span class=p>(</span><span class=n>p</span><span class=o>.</span><span class=n>get_sample_size</span><span class=p>(</span><span class=n>FORMAT</span><span class=p>))</span>
+        <span class=n>wf</span><span class=o>.</span><span class=n>setframerate</span><span class=p>(</span><span class=n>RATE</span><span class=p>)</span>
+        <span class=n>wf</span><span class=o>.</span><span class=n>writeframes</span><span class=p>(</span><span class=s1>&#39;&#39;</span><span class=o>.</span><span class=n>join</span><span class=p>(</span><span class=n>frames</span><span class=p>))</span>
+        <span class=n>wf</span><span class=o>.</span><span class=n>close</span><span class=p>()</span>
+
+
+<span class=k>if</span> <span class=vm>__name__</span> <span class=o>==</span> <span class=s1>&#39;__main__&#39;</span><span class=p>:</span>
+    <span class=n>a</span> <span class=o>=</span> <span class=n>recode</span><span class=p>()</span>
+    <span class=n>a</span><span class=o>.</span><span class=n>recode</span><span class=p>(</span><span class=n>RECORD_SECONDS</span><span class=o>=</span><span class=mi>30</span><span class=p>,</span> <span class=n>WAVE_OUTPUT_FILENAME</span><span class=o>=</span><span class=s1>&#39;record_pianai.wav&#39;</span><span class=p>)</span>
+</code></pre></td></tr></table></div></div><p>我们录完的歌曲是个什么形式？
+如果只看一个声道的话，他是一个一维数组，大概长成这个样子
+<img src=/static/audio_3.png alt=image00></p><p>我们把他按照索引值为横轴画出来，就是我们常常看见的音频的形式。
+<img src=/static/audio_2.png alt=image2></p><hr><h2 id=音频处理部分>音频处理部分</h2><blockquote><p>我们在这里要写我们的核心代码。关键的“如何识别歌曲”。想想我们人类如何区分歌曲？ 是靠想上面那样的一维数组吗？是靠歌曲的响度吗？都不是。
+我们是通过耳朵所听到的特有的频率组成的<strong>序列</strong>来记忆歌曲的，所以我们想要写听歌识曲的话，就得在音频的频率序列上做文章。
+复习一下什么是傅里叶变换。博主的《信号与系统》的课上的挺水，不过在课上虽然没有记下来具体的变换形式，但是感性的理解还是有的。
+傅里叶变换的实质就是把时域信号变换成了频域信号。也就是原本X,Y轴分别是我们的数组下标和数组元素，现在变成了频率(这么说不准确，但在这里这样理解没错)和在这个频率上的分量大小。</p></blockquote><p><img src=/static/9abbeb5c8cbf50ec5b58249394cb1ca9_b.jpg alt=image4></p><p>上面的图来自知乎，非常感谢Heinrich写的文章，原文链接：<a href=http://daily.zhihu.com/story/3935067>点我跳转</a></p><p>怎么理解频域这个事情呢？对于我们信号处理不是很懂的人来说，最重要的就是改变对音频的构成的理解。我们原来认为音频就是如我们开始给出的波形那样，在每一个时间有一个幅值，不同的幅值序列构成了我们特定的声音。而现在，我们认为声音是不同的频率信号混合而成的，他们每一个信号都<strong>自始至终</strong>存在着。并且他们按照他们的投影分量做贡献。</p><p>让我们看看把一首歌曲转化到频域是什么样子？
+<img src=/static/imageaudio_4.png alt=image5></p><p>我们可以观察到这些频率的分量并不是平均的，差异是非常大的。我们可以在一定程度上认为在图中明显凸起的峰值是输出能量大的频率信号，代表着在这个音频中，这个信号占有很高的地位。于是我们就选择这样的信号来提取歌曲的特征。</p><p>但是别忘了，我们之前说的可是频率<strong>序列</strong>，傅里叶变换一套上，我们就只能知道整首歌曲的频率信息，那么我们就损失了时间的关系，我们说的“序列”也就无从谈起。所以我们采用的比较折中的方法，将音频按照时间分成一个个小块，在这里我每秒分出了40个块。
+在这里留个问题：为什么要采用小块，而不是每秒一块这样的大块？</p><p>我们对每一个块进行傅里叶变换，然后对其求模，得到一个个数组。我们在下标值为(0,40),(40,80),(80,120),(120,180)这四个区间分别取其模长最大的下标，合成一个四元组，这就是我们最核心的音频“指纹”。</p><p>我们提取出来的“指纹”类似下面这样</p><blockquote><p>(39, 65, 110, 131), (15, 66, 108, 161), (3, 63, 118, 146), (11, 62, 82, 158), (15, 41, 95, 140), (2, 71, 106, 143), (15, 44, 80, 133), (36, 43, 80, 135), (22, 58, 80, 120), (29, 52, 89, 126), (15, 59, 89, 126), (37, 59, 89, 126), (37, 59, 89, 126), (37, 67, 119, 126)</p></blockquote><p>音频处理的类有三个方法：载入数据，傅里叶变换，播放音乐。
+如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span><span class=lnt>73
+</span><span class=lnt>74
+</span><span class=lnt>75
+</span><span class=lnt>76
+</span><span class=lnt>77
+</span><span class=lnt>78
+</span><span class=lnt>79
+</span><span class=lnt>80
+</span><span class=lnt>81
+</span><span class=lnt>82
+</span><span class=lnt>83
+</span><span class=lnt>84
+</span><span class=lnt>85
+</span><span class=lnt>86
+</span><span class=lnt>87
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-python data-lang=python><span class=c1># coding=utf8</span>
+<span class=kn>import</span> <span class=nn>os</span>
+<span class=kn>import</span> <span class=nn>re</span>
+<span class=kn>import</span> <span class=nn>wave</span>
+
+<span class=kn>import</span> <span class=nn>numpy</span> <span class=kn>as</span> <span class=nn>np</span>
+<span class=kn>import</span> <span class=nn>pyaudio</span>
+
+
+<span class=k>class</span> <span class=nc>voice</span><span class=p>():</span>
+    <span class=k>def</span> <span class=nf>loaddata</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>filepath</span><span class=p>):</span>
+        <span class=s1>&#39;&#39;&#39;
+</span><span class=s1>
+</span><span class=s1>        :param filepath: 文件路径，为wav文件
+</span><span class=s1>        :return: 如果无异常则返回True，如果有异常退出并返回False
+</span><span class=s1>        self.wave_data内储存着多通道的音频数据，其中self.wave_data[0]代表第一通道
+</span><span class=s1>        具体有几通道，看self.nchannels
+</span><span class=s1>        &#39;&#39;&#39;</span>
+        <span class=k>if</span> <span class=nb>type</span><span class=p>(</span><span class=n>filepath</span><span class=p>)</span> <span class=o>!=</span> <span class=nb>str</span><span class=p>:</span>
+            <span class=k>raise</span> <span class=ne>TypeError</span><span class=p>,</span> <span class=s1>&#39;the type of filepath must be string&#39;</span>
+        <span class=n>p1</span> <span class=o>=</span> <span class=n>re</span><span class=o>.</span><span class=n>compile</span><span class=p>(</span><span class=s1>&#39;\.wav&#39;</span><span class=p>)</span>
+        <span class=k>if</span> <span class=n>p1</span><span class=o>.</span><span class=n>findall</span><span class=p>(</span><span class=n>filepath</span><span class=p>)</span> <span class=ow>is</span> <span class=bp>None</span><span class=p>:</span>
+            <span class=k>raise</span> <span class=ne>IOError</span><span class=p>,</span> <span class=s1>&#39;the suffix of file must be .wav&#39;</span>
+        <span class=k>try</span><span class=p>:</span>
+            <span class=n>f</span> <span class=o>=</span> <span class=n>wave</span><span class=o>.</span><span class=n>open</span><span class=p>(</span><span class=n>filepath</span><span class=p>,</span> <span class=s1>&#39;rb&#39;</span><span class=p>)</span>
+            <span class=n>params</span> <span class=o>=</span> <span class=n>f</span><span class=o>.</span><span class=n>getparams</span><span class=p>()</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>nchannels</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>sampwidth</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>framerate</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>nframes</span> <span class=o>=</span> <span class=n>params</span><span class=p>[:</span><span class=mi>4</span><span class=p>]</span>
+            <span class=n>str_data</span> <span class=o>=</span> <span class=n>f</span><span class=o>.</span><span class=n>readframes</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>nframes</span><span class=p>)</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>wave_data</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>fromstring</span><span class=p>(</span><span class=n>str_data</span><span class=p>,</span> <span class=n>dtype</span><span class=o>=</span><span class=n>np</span><span class=o>.</span><span class=n>short</span><span class=p>)</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>wave_data</span><span class=o>.</span><span class=n>shape</span> <span class=o>=</span> <span class=o>-</span><span class=mi>1</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>sampwidth</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>wave_data</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>wave_data</span><span class=o>.</span><span class=n>T</span>
+            <span class=n>f</span><span class=o>.</span><span class=n>close</span><span class=p>()</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>name</span> <span class=o>=</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>basename</span><span class=p>(</span><span class=n>filepath</span><span class=p>)</span>  <span class=c1># 记录下文件名</span>
+            <span class=k>return</span> <span class=bp>True</span>
+        <span class=k>except</span><span class=p>:</span>
+            <span class=k>raise</span> <span class=ne>IOError</span><span class=p>,</span> <span class=s1>&#39;File Error&#39;</span>
+
+    <span class=k>def</span> <span class=nf>fft</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>frames</span><span class=o>=</span><span class=mi>40</span><span class=p>):</span>
+        <span class=s1>&#39;&#39;&#39;
+</span><span class=s1>        整体指纹提取的核心方法，将整个音频分块后分别对每块进行傅里叶变换，之后分子带抽取高能量点的下标
+</span><span class=s1>        :param frames: frames是指定每秒钟分块数
+</span><span class=s1>        :return:
+</span><span class=s1>        &#39;&#39;&#39;</span>
+        <span class=n>block</span> <span class=o>=</span> <span class=p>[]</span>
+        <span class=n>fft_blocks</span> <span class=o>=</span> <span class=p>[]</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>high_point</span> <span class=o>=</span> <span class=p>[]</span>
+        <span class=n>blocks_size</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>framerate</span> <span class=o>/</span> <span class=n>frames</span>  <span class=c1># block_size为每一块的frame数量</span>
+        <span class=n>blocks_num</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>nframes</span> <span class=o>/</span> <span class=n>blocks_size</span>  <span class=c1># 将音频分块的数量</span>
+        <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>xrange</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=nb>len</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>wave_data</span><span class=p>[</span><span class=mi>0</span><span class=p>])</span> <span class=o>-</span> <span class=n>blocks_size</span><span class=p>,</span> <span class=n>blocks_size</span><span class=p>):</span>
+            <span class=n>block</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>wave_data</span><span class=p>[</span><span class=mi>0</span><span class=p>][</span><span class=n>i</span><span class=p>:</span><span class=n>i</span> <span class=o>+</span> <span class=n>blocks_size</span><span class=p>])</span>
+            <span class=n>fft_blocks</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>np</span><span class=o>.</span><span class=n>abs</span><span class=p>(</span><span class=n>np</span><span class=o>.</span><span class=n>fft</span><span class=o>.</span><span class=n>fft</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>wave_data</span><span class=p>[</span><span class=mi>0</span><span class=p>][</span><span class=n>i</span><span class=p>:</span><span class=n>i</span> <span class=o>+</span> <span class=n>blocks_size</span><span class=p>])))</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>high_point</span><span class=o>.</span><span class=n>append</span><span class=p>((</span><span class=n>np</span><span class=o>.</span><span class=n>argmax</span><span class=p>(</span><span class=n>fft_blocks</span><span class=p>[</span><span class=o>-</span><span class=mi>1</span><span class=p>][:</span><span class=mi>40</span><span class=p>]),</span>
+                                    <span class=n>np</span><span class=o>.</span><span class=n>argmax</span><span class=p>(</span><span class=n>fft_blocks</span><span class=p>[</span><span class=o>-</span><span class=mi>1</span><span class=p>][</span><span class=mi>40</span><span class=p>:</span><span class=mi>80</span><span class=p>])</span> <span class=o>+</span> <span class=mi>40</span><span class=p>,</span>
+                                    <span class=n>np</span><span class=o>.</span><span class=n>argmax</span><span class=p>(</span><span class=n>fft_blocks</span><span class=p>[</span><span class=o>-</span><span class=mi>1</span><span class=p>][</span><span class=mi>80</span><span class=p>:</span><span class=mi>120</span><span class=p>])</span> <span class=o>+</span> <span class=mi>80</span><span class=p>,</span>
+                                    <span class=n>np</span><span class=o>.</span><span class=n>argmax</span><span class=p>(</span><span class=n>fft_blocks</span><span class=p>[</span><span class=o>-</span><span class=mi>1</span><span class=p>][</span><span class=mi>120</span><span class=p>:</span><span class=mi>180</span><span class=p>])</span> <span class=o>+</span> <span class=mi>120</span><span class=p>,</span>
+                                    <span class=c1># np.argmax(fft_blocks[-1][180:300]) + 180,</span>
+                                    <span class=p>))</span>
+
+    <span class=k>def</span> <span class=nf>play</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>filepath</span><span class=p>):</span>
+        <span class=s1>&#39;&#39;&#39;
+</span><span class=s1>        音频播放方法
+</span><span class=s1>        :param filepath:文件路径
+</span><span class=s1>        :return:
+</span><span class=s1>        &#39;&#39;&#39;</span>
+        <span class=n>chunk</span> <span class=o>=</span> <span class=mi>1024</span>
+        <span class=n>wf</span> <span class=o>=</span> <span class=n>wave</span><span class=o>.</span><span class=n>open</span><span class=p>(</span><span class=n>filepath</span><span class=p>,</span> <span class=s1>&#39;rb&#39;</span><span class=p>)</span>
+        <span class=n>p</span> <span class=o>=</span> <span class=n>pyaudio</span><span class=o>.</span><span class=n>PyAudio</span><span class=p>()</span>
+        <span class=c1># 打开声音输出流</span>
+        <span class=n>stream</span> <span class=o>=</span> <span class=n>p</span><span class=o>.</span><span class=n>open</span><span class=p>(</span><span class=n>format</span><span class=o>=</span><span class=n>p</span><span class=o>.</span><span class=n>get_format_from_width</span><span class=p>(</span><span class=n>wf</span><span class=o>.</span><span class=n>getsampwidth</span><span class=p>()),</span>
+                        <span class=n>channels</span><span class=o>=</span><span class=n>wf</span><span class=o>.</span><span class=n>getnchannels</span><span class=p>(),</span>
+                        <span class=n>rate</span><span class=o>=</span><span class=n>wf</span><span class=o>.</span><span class=n>getframerate</span><span class=p>(),</span>
+                        <span class=n>output</span><span class=o>=</span><span class=bp>True</span><span class=p>)</span>
+        <span class=c1># 写声音输出流进行播放</span>
+        <span class=k>while</span> <span class=bp>True</span><span class=p>:</span>
+            <span class=n>data</span> <span class=o>=</span> <span class=n>wf</span><span class=o>.</span><span class=n>readframes</span><span class=p>(</span><span class=n>chunk</span><span class=p>)</span>
+            <span class=k>if</span> <span class=n>data</span> <span class=o>==</span> <span class=s2>&#34;&#34;</span><span class=p>:</span> <span class=k>break</span>
+            <span class=n>stream</span><span class=o>.</span><span class=n>write</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
+        <span class=n>stream</span><span class=o>.</span><span class=n>close</span><span class=p>()</span>
+        <span class=n>p</span><span class=o>.</span><span class=n>terminate</span><span class=p>()</span>
+
+
+<span class=k>if</span> <span class=vm>__name__</span> <span class=o>==</span> <span class=s1>&#39;__main__&#39;</span><span class=p>:</span>
+    <span class=n>p</span> <span class=o>=</span> <span class=n>voice</span><span class=p>()</span>
+    <span class=n>p</span><span class=o>.</span><span class=n>play</span><span class=p>(</span><span class=s1>&#39;the_mess.wav&#39;</span><span class=p>)</span>
+    <span class=k>print</span> <span class=n>p</span><span class=o>.</span><span class=n>name</span>
+
+
+</code></pre></td></tr></table></div></div><p>这里面的self.high_point是未来应用的核心数据。列表类型，里面的元素都是上面所解释过的指纹的形式。</p><hr><h2 id=数据存储和检索部分>数据存储和检索部分</h2><p>因为我们是事先做好了曲库来等待检索，所以必须要有相应的持久化方法。我采用的是直接用mysql数据库来存储我们的歌曲对应的指纹，这样有一个好处：省写代码的时间</p><p>我们将指纹和歌曲存成这样的形式：
+<img src=/static/audio_5.png alt=image6>
+顺便一说：为什么各个歌曲前几个的指纹都一样？（当然，后面肯定是千差万别的）其实是音乐开始之前的时间段中没有什么能量较强的点，而由于我们44100的采样率比较高，就会导致开头会有很多重复，别担心。
+我们怎么来进行匹配呢？我们可以直接搜索音频指纹相同的数量，不过这样又损失了我们之前说的<strong>序列</strong>，我们必须要把时间序列用上。否则一首歌曲越长就越容易被匹配到，这种歌曲像野草一样疯狂的占据了所有搜索音频的结果排行榜中的第一名。而且从理论上说，音频所包含的信息就是在序列中体现，就像一句话是靠各个短语和词汇按照一定顺序才能表达出它自己的意思。单纯的看两个句子里的词汇重叠数是完全不能判定两句话是否相似的。我们采用的是下面的算法，不过我们这只是实验性的代码，算法设计的很简单，效率不高。建议想要做更好的结果的同学可以使用改进的DTW算法。</p><p>我们在匹配过程中滑动指纹序列，每次比对模式串和源串的对应子串，如果对应位置的指纹相同，则这次的比对相似值加一，我们把滑动过程中得到的最大相似值作为这两首歌的相似度。
+举例：
+曲库中的一首曲子的指纹序列:[fp13, fp20, fp10, fp29, fp14, fp25, fp13, fp13, fp20, fp33, fp14]
+检索音乐的指纹序列: [fp14, fp25, fp13, fp17]
+比对过程：
+<img src=/static/audio_6.png alt=image8>
+<img src=/static/audio_7.png alt=image9>
+<img src=/static/audio_8.png alt=image10>
+<img src=/static/audio_9.png alt=image11>
+<img src=/static/audio_10.png alt=image12>
+<img src=/static/audio_11.png alt=image13>
+<img src=/static/audio_12.png alt=image14>
+<img src=/static/audio_13.png alt=image15>
+最终的匹配相似值为3</p><p>存储检索部分的实现代码</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>  1
+</span><span class=lnt>  2
+</span><span class=lnt>  3
+</span><span class=lnt>  4
+</span><span class=lnt>  5
+</span><span class=lnt>  6
+</span><span class=lnt>  7
+</span><span class=lnt>  8
+</span><span class=lnt>  9
+</span><span class=lnt> 10
+</span><span class=lnt> 11
+</span><span class=lnt> 12
+</span><span class=lnt> 13
+</span><span class=lnt> 14
+</span><span class=lnt> 15
+</span><span class=lnt> 16
+</span><span class=lnt> 17
+</span><span class=lnt> 18
+</span><span class=lnt> 19
+</span><span class=lnt> 20
+</span><span class=lnt> 21
+</span><span class=lnt> 22
+</span><span class=lnt> 23
+</span><span class=lnt> 24
+</span><span class=lnt> 25
+</span><span class=lnt> 26
+</span><span class=lnt> 27
+</span><span class=lnt> 28
+</span><span class=lnt> 29
+</span><span class=lnt> 30
+</span><span class=lnt> 31
+</span><span class=lnt> 32
+</span><span class=lnt> 33
+</span><span class=lnt> 34
+</span><span class=lnt> 35
+</span><span class=lnt> 36
+</span><span class=lnt> 37
+</span><span class=lnt> 38
+</span><span class=lnt> 39
+</span><span class=lnt> 40
+</span><span class=lnt> 41
+</span><span class=lnt> 42
+</span><span class=lnt> 43
+</span><span class=lnt> 44
+</span><span class=lnt> 45
+</span><span class=lnt> 46
+</span><span class=lnt> 47
+</span><span class=lnt> 48
+</span><span class=lnt> 49
+</span><span class=lnt> 50
+</span><span class=lnt> 51
+</span><span class=lnt> 52
+</span><span class=lnt> 53
+</span><span class=lnt> 54
+</span><span class=lnt> 55
+</span><span class=lnt> 56
+</span><span class=lnt> 57
+</span><span class=lnt> 58
+</span><span class=lnt> 59
+</span><span class=lnt> 60
+</span><span class=lnt> 61
+</span><span class=lnt> 62
+</span><span class=lnt> 63
+</span><span class=lnt> 64
+</span><span class=lnt> 65
+</span><span class=lnt> 66
+</span><span class=lnt> 67
+</span><span class=lnt> 68
+</span><span class=lnt> 69
+</span><span class=lnt> 70
+</span><span class=lnt> 71
+</span><span class=lnt> 72
+</span><span class=lnt> 73
+</span><span class=lnt> 74
+</span><span class=lnt> 75
+</span><span class=lnt> 76
+</span><span class=lnt> 77
+</span><span class=lnt> 78
+</span><span class=lnt> 79
+</span><span class=lnt> 80
+</span><span class=lnt> 81
+</span><span class=lnt> 82
+</span><span class=lnt> 83
+</span><span class=lnt> 84
+</span><span class=lnt> 85
+</span><span class=lnt> 86
+</span><span class=lnt> 87
+</span><span class=lnt> 88
+</span><span class=lnt> 89
+</span><span class=lnt> 90
+</span><span class=lnt> 91
+</span><span class=lnt> 92
+</span><span class=lnt> 93
+</span><span class=lnt> 94
+</span><span class=lnt> 95
+</span><span class=lnt> 96
+</span><span class=lnt> 97
+</span><span class=lnt> 98
+</span><span class=lnt> 99
+</span><span class=lnt>100
+</span><span class=lnt>101
+</span><span class=lnt>102
+</span><span class=lnt>103
+</span><span class=lnt>104
+</span><span class=lnt>105
+</span><span class=lnt>106
+</span><span class=lnt>107
+</span><span class=lnt>108
+</span><span class=lnt>109
+</span><span class=lnt>110
+</span><span class=lnt>111
+</span><span class=lnt>112
+</span><span class=lnt>113
+</span><span class=lnt>114
+</span><span class=lnt>115
+</span><span class=lnt>116
+</span><span class=lnt>117
+</span><span class=lnt>118
+</span><span class=lnt>119
+</span><span class=lnt>120
+</span><span class=lnt>121
+</span><span class=lnt>122
+</span><span class=lnt>123
+</span><span class=lnt>124
+</span><span class=lnt>125
+</span><span class=lnt>126
+</span><span class=lnt>127
+</span><span class=lnt>128
+</span><span class=lnt>129
+</span><span class=lnt>130
+</span><span class=lnt>131
+</span><span class=lnt>132
+</span><span class=lnt>133
+</span><span class=lnt>134
+</span><span class=lnt>135
+</span><span class=lnt>136
+</span><span class=lnt>137
+</span><span class=lnt>138
+</span><span class=lnt>139
+</span><span class=lnt>140
+</span><span class=lnt>141
+</span><span class=lnt>142
+</span><span class=lnt>143
+</span><span class=lnt>144
+</span><span class=lnt>145
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-python data-lang=python><span class=c1># coding=utf-8</span>
+
+<span class=kn>import</span> <span class=nn>os</span>
+
+<span class=kn>import</span> <span class=nn>MySQLdb</span>
+
+<span class=kn>import</span> <span class=nn>my_audio</span>
+
+
+<span class=k>class</span> <span class=nc>memory</span><span class=p>():</span>
+    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>host</span><span class=p>,</span> <span class=n>port</span><span class=p>,</span> <span class=n>user</span><span class=p>,</span> <span class=n>passwd</span><span class=p>,</span> <span class=n>db</span><span class=p>):</span>
+        <span class=s1>&#39;&#39;&#39;
+</span><span class=s1>        初始化的方法，主要是存储连接数据库的参数
+</span><span class=s1>        :param host:
+</span><span class=s1>        :param port:
+</span><span class=s1>        :param user:
+</span><span class=s1>        :param passwd:
+</span><span class=s1>        :param db:
+</span><span class=s1>        &#39;&#39;&#39;</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>host</span> <span class=o>=</span> <span class=n>host</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>port</span> <span class=o>=</span> <span class=n>port</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>user</span> <span class=o>=</span> <span class=n>user</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>passwd</span> <span class=o>=</span> <span class=n>passwd</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>db</span> <span class=o>=</span> <span class=n>db</span>
+
+    <span class=k>def</span> <span class=nf>addsong</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>path</span><span class=p>):</span>
+        <span class=s1>&#39;&#39;&#39;
+</span><span class=s1>        添加歌曲方法，将歌曲名和歌曲特征指纹存到数据库
+</span><span class=s1>        :param path: 歌曲路径
+</span><span class=s1>        :return:
+</span><span class=s1>        &#39;&#39;&#39;</span>
+        <span class=k>if</span> <span class=nb>type</span><span class=p>(</span><span class=n>path</span><span class=p>)</span> <span class=o>!=</span> <span class=nb>str</span><span class=p>:</span>
+            <span class=k>raise</span> <span class=ne>TypeError</span><span class=p>,</span> <span class=s1>&#39;path need string&#39;</span>
+        <span class=n>basename</span> <span class=o>=</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>basename</span><span class=p>(</span><span class=n>path</span><span class=p>)</span>
+        <span class=k>try</span><span class=p>:</span>
+            <span class=n>conn</span> <span class=o>=</span> <span class=n>MySQLdb</span><span class=o>.</span><span class=n>connect</span><span class=p>(</span><span class=n>host</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>host</span><span class=p>,</span> <span class=n>port</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>port</span><span class=p>,</span> <span class=n>user</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>user</span><span class=p>,</span> <span class=n>passwd</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>passwd</span><span class=p>,</span> <span class=n>db</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>db</span><span class=p>,</span>
+                                   <span class=n>charset</span><span class=o>=</span><span class=s1>&#39;utf8&#39;</span><span class=p>)</span>
+        <span class=k>except</span><span class=p>:</span>
+            <span class=k>print</span> <span class=s1>&#39;DataBase error&#39;</span>
+            <span class=k>return</span> <span class=bp>None</span>
+        <span class=n>cur</span> <span class=o>=</span> <span class=n>conn</span><span class=o>.</span><span class=n>cursor</span><span class=p>()</span>
+        <span class=n>namecount</span> <span class=o>=</span> <span class=n>cur</span><span class=o>.</span><span class=n>execute</span><span class=p>(</span><span class=s2>&#34;select * from fingerprint.musicdata WHERE song_name = &#39;</span><span class=si>%s</span><span class=s2>&#39;&#34;</span> <span class=o>%</span> <span class=n>basename</span><span class=p>)</span>
+        <span class=k>if</span> <span class=n>namecount</span> <span class=o>&gt;</span> <span class=mi>0</span><span class=p>:</span>
+            <span class=k>print</span> <span class=s1>&#39;the song has been record!&#39;</span>
+            <span class=k>return</span> <span class=bp>None</span>
+        <span class=n>v</span> <span class=o>=</span> <span class=n>my_audio</span><span class=o>.</span><span class=n>voice</span><span class=p>()</span>
+        <span class=n>v</span><span class=o>.</span><span class=n>loaddata</span><span class=p>(</span><span class=n>path</span><span class=p>)</span>
+        <span class=n>v</span><span class=o>.</span><span class=n>fft</span><span class=p>()</span>
+        <span class=n>cur</span><span class=o>.</span><span class=n>execute</span><span class=p>(</span><span class=s2>&#34;insert into fingerprint.musicdata VALUES(&#39;</span><span class=si>%s</span><span class=s2>&#39;,&#39;</span><span class=si>%s</span><span class=s2>&#39;)&#34;</span> <span class=o>%</span> <span class=p>(</span><span class=n>basename</span><span class=p>,</span> <span class=n>v</span><span class=o>.</span><span class=n>high_point</span><span class=o>.</span><span class=fm>__str__</span><span class=p>()))</span>
+        <span class=n>conn</span><span class=o>.</span><span class=n>commit</span><span class=p>()</span>
+        <span class=n>cur</span><span class=o>.</span><span class=n>close</span><span class=p>()</span>
+        <span class=n>conn</span><span class=o>.</span><span class=n>close</span><span class=p>()</span>
+
+
+    <span class=k>def</span> <span class=nf>fp_compare</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>search_fp</span><span class=p>,</span> <span class=n>match_fp</span><span class=p>):</span>
+        <span class=s1>&#39;&#39;&#39;
+</span><span class=s1>
+</span><span class=s1>        :param search_fp: 查询指纹
+</span><span class=s1>        :param match_fp: 库中指纹
+</span><span class=s1>        :return:最大相似值 float
+</span><span class=s1>        &#39;&#39;&#39;</span>
+        <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=n>search_fp</span><span class=p>)</span> <span class=o>&gt;</span> <span class=nb>len</span><span class=p>(</span><span class=n>match_fp</span><span class=p>):</span>
+            <span class=k>return</span> <span class=mi>0</span>
+        <span class=n>max_similar</span> <span class=o>=</span> <span class=mi>0</span>
+        <span class=n>search_fp_len</span> <span class=o>=</span> <span class=nb>len</span><span class=p>(</span><span class=n>search_fp</span><span class=p>)</span>
+        <span class=n>match_fp_len</span> <span class=o>=</span> <span class=nb>len</span><span class=p>(</span><span class=n>match_fp</span><span class=p>)</span>
+        <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=n>match_fp_len</span> <span class=o>-</span> <span class=n>search_fp_len</span><span class=p>):</span>
+            <span class=n>temp</span> <span class=o>=</span> <span class=mi>0</span>
+            <span class=k>for</span> <span class=n>j</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=n>search_fp_len</span><span class=p>):</span>
+                <span class=k>if</span> <span class=n>match_fp</span><span class=p>[</span><span class=n>i</span> <span class=o>+</span> <span class=n>j</span><span class=p>]</span> <span class=o>==</span> <span class=n>search_fp</span><span class=p>[</span><span class=n>j</span><span class=p>]:</span>
+                    <span class=n>temp</span> <span class=o>+=</span> <span class=mi>1</span>
+            <span class=k>if</span> <span class=n>temp</span> <span class=o>&gt;</span> <span class=n>max_similar</span><span class=p>:</span>
+                <span class=n>max_similar</span> <span class=o>=</span> <span class=n>temp</span>
+        <span class=k>return</span> <span class=n>max_similar</span>
+
+    <span class=k>def</span> <span class=nf>search</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>path</span><span class=p>):</span>
+        <span class=s1>&#39;&#39;&#39;
+</span><span class=s1>        搜索方法，输入为文件路径
+</span><span class=s1>        :param path: 待检索文件路径
+</span><span class=s1>        :return: 按照相似度排序后的列表，元素类型为tuple，二元组，歌曲名和相似匹配值
+</span><span class=s1>        &#39;&#39;&#39;</span>
+        <span class=c1>#先计算出来我们的音频指纹</span>
+        <span class=n>v</span> <span class=o>=</span> <span class=n>my_audio</span><span class=o>.</span><span class=n>voice</span><span class=p>()</span>
+        <span class=n>v</span><span class=o>.</span><span class=n>loaddata</span><span class=p>(</span><span class=n>path</span><span class=p>)</span>
+        <span class=n>v</span><span class=o>.</span><span class=n>fft</span><span class=p>()</span>
+        <span class=c1>#尝试连接数据库</span>
+        <span class=k>try</span><span class=p>:</span>
+            <span class=n>conn</span> <span class=o>=</span> <span class=n>MySQLdb</span><span class=o>.</span><span class=n>connect</span><span class=p>(</span><span class=n>host</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>host</span><span class=p>,</span> <span class=n>port</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>port</span><span class=p>,</span> <span class=n>user</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>user</span><span class=p>,</span> <span class=n>passwd</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>passwd</span><span class=p>,</span> <span class=n>db</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>db</span><span class=p>,</span>
+                                   <span class=n>charset</span><span class=o>=</span><span class=s1>&#39;utf8&#39;</span><span class=p>)</span>
+        <span class=k>except</span><span class=p>:</span>
+            <span class=k>raise</span> <span class=ne>IOError</span><span class=p>,</span> <span class=s1>&#39;DataBase error&#39;</span>
+        <span class=n>cur</span> <span class=o>=</span> <span class=n>conn</span><span class=o>.</span><span class=n>cursor</span><span class=p>()</span>
+        <span class=n>cur</span><span class=o>.</span><span class=n>execute</span><span class=p>(</span><span class=s2>&#34;SELECT * FROM fingerprint.musicdata&#34;</span><span class=p>)</span>
+        <span class=n>result</span> <span class=o>=</span> <span class=n>cur</span><span class=o>.</span><span class=n>fetchall</span><span class=p>()</span>
+        <span class=n>compare_res</span> <span class=o>=</span> <span class=p>[]</span>
+        <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=n>result</span><span class=p>:</span>
+            <span class=n>compare_res</span><span class=o>.</span><span class=n>append</span><span class=p>((</span><span class=bp>self</span><span class=o>.</span><span class=n>fp_compare</span><span class=p>(</span><span class=n>v</span><span class=o>.</span><span class=n>high_point</span><span class=p>[:</span><span class=o>-</span><span class=mi>1</span><span class=p>],</span> <span class=nb>eval</span><span class=p>(</span><span class=n>i</span><span class=p>[</span><span class=mi>1</span><span class=p>])),</span> <span class=n>i</span><span class=p>[</span><span class=mi>0</span><span class=p>]))</span>
+        <span class=n>compare_res</span><span class=o>.</span><span class=n>sort</span><span class=p>(</span><span class=n>reverse</span><span class=o>=</span><span class=bp>True</span><span class=p>)</span>
+        <span class=n>cur</span><span class=o>.</span><span class=n>close</span><span class=p>()</span>
+        <span class=n>conn</span><span class=o>.</span><span class=n>close</span><span class=p>()</span>
+        <span class=k>print</span> <span class=n>compare_res</span>
+        <span class=k>return</span> <span class=n>compare_res</span>
+
+    <span class=k>def</span> <span class=nf>search_and_play</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>path</span><span class=p>):</span>
+        <span class=s1>&#39;&#39;&#39;
+</span><span class=s1>        搜索方法顺带了播放方法
+</span><span class=s1>        :param path:文件路径
+</span><span class=s1>        :return:
+</span><span class=s1>        &#39;&#39;&#39;</span>
+        <span class=n>v</span> <span class=o>=</span> <span class=n>my_audio</span><span class=o>.</span><span class=n>voice</span><span class=p>()</span>
+        <span class=n>v</span><span class=o>.</span><span class=n>loaddata</span><span class=p>(</span><span class=n>path</span><span class=p>)</span>
+        <span class=n>v</span><span class=o>.</span><span class=n>fft</span><span class=p>()</span>
+        <span class=k>try</span><span class=p>:</span>
+            <span class=n>conn</span> <span class=o>=</span> <span class=n>MySQLdb</span><span class=o>.</span><span class=n>connect</span><span class=p>(</span><span class=n>host</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>host</span><span class=p>,</span> <span class=n>port</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>port</span><span class=p>,</span> <span class=n>user</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>user</span><span class=p>,</span> <span class=n>passwd</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>passwd</span><span class=p>,</span> <span class=n>db</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>db</span><span class=p>,</span>
+                                   <span class=n>charset</span><span class=o>=</span><span class=s1>&#39;utf8&#39;</span><span class=p>)</span>
+        <span class=k>except</span><span class=p>:</span>
+            <span class=k>print</span> <span class=s1>&#39;DataBase error&#39;</span>
+            <span class=k>return</span> <span class=bp>None</span>
+        <span class=n>cur</span> <span class=o>=</span> <span class=n>conn</span><span class=o>.</span><span class=n>cursor</span><span class=p>()</span>
+        <span class=n>cur</span><span class=o>.</span><span class=n>execute</span><span class=p>(</span><span class=s2>&#34;SELECT * FROM fingerprint.musicdata&#34;</span><span class=p>)</span>
+        <span class=n>result</span> <span class=o>=</span> <span class=n>cur</span><span class=o>.</span><span class=n>fetchall</span><span class=p>()</span>
+        <span class=n>compare_res</span> <span class=o>=</span> <span class=p>[]</span>
+        <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=n>result</span><span class=p>:</span>
+            <span class=n>compare_res</span><span class=o>.</span><span class=n>append</span><span class=p>((</span><span class=bp>self</span><span class=o>.</span><span class=n>fp_compare</span><span class=p>(</span><span class=n>v</span><span class=o>.</span><span class=n>high_point</span><span class=p>[:</span><span class=o>-</span><span class=mi>1</span><span class=p>],</span> <span class=nb>eval</span><span class=p>(</span><span class=n>i</span><span class=p>[</span><span class=mi>1</span><span class=p>])),</span> <span class=n>i</span><span class=p>[</span><span class=mi>0</span><span class=p>]))</span>
+        <span class=n>compare_res</span><span class=o>.</span><span class=n>sort</span><span class=p>(</span><span class=n>reverse</span><span class=o>=</span><span class=bp>True</span><span class=p>)</span>
+        <span class=n>cur</span><span class=o>.</span><span class=n>close</span><span class=p>()</span>
+        <span class=n>conn</span><span class=o>.</span><span class=n>close</span><span class=p>()</span>
+        <span class=k>print</span> <span class=n>compare_res</span>
+        <span class=n>v</span><span class=o>.</span><span class=n>play</span><span class=p>(</span><span class=n>compare_res</span><span class=p>[</span><span class=mi>0</span><span class=p>][</span><span class=mi>1</span><span class=p>])</span>
+        <span class=k>return</span> <span class=n>compare_res</span>
+
+
+<span class=k>if</span> <span class=vm>__name__</span> <span class=o>==</span> <span class=s1>&#39;__main__&#39;</span><span class=p>:</span>
+    <span class=n>sss</span> <span class=o>=</span> <span class=n>memory</span><span class=p>(</span><span class=s1>&#39;localhost&#39;</span><span class=p>,</span> <span class=mi>3306</span><span class=p>,</span> <span class=s1>&#39;root&#39;</span><span class=p>,</span> <span class=s1>&#39;&#39;</span><span class=p>,</span> <span class=s1>&#39;fingerprint&#39;</span><span class=p>)</span>
+    <span class=n>sss</span><span class=o>.</span><span class=n>addsong</span><span class=p>(</span><span class=s1>&#39;taiyangzhaochangshengqi.wav&#39;</span><span class=p>)</span>
+    <span class=n>sss</span><span class=o>.</span><span class=n>addsong</span><span class=p>(</span><span class=s1>&#39;beiyiwangdeshiguang.wav&#39;</span><span class=p>)</span>
+    <span class=n>sss</span><span class=o>.</span><span class=n>addsong</span><span class=p>(</span><span class=s1>&#39;xiaozezhenger.wav&#39;</span><span class=p>)</span>
+    <span class=n>sss</span><span class=o>.</span><span class=n>addsong</span><span class=p>(</span><span class=s1>&#39;nverqing.wav&#39;</span><span class=p>)</span>
+    <span class=n>sss</span><span class=o>.</span><span class=n>addsong</span><span class=p>(</span><span class=s1>&#39;the_mess.wav&#39;</span><span class=p>)</span>
+    <span class=n>sss</span><span class=o>.</span><span class=n>addsong</span><span class=p>(</span><span class=s1>&#39;windmill.wav&#39;</span><span class=p>)</span>
+    <span class=n>sss</span><span class=o>.</span><span class=n>addsong</span><span class=p>(</span><span class=s1>&#39;end_of_world.wav&#39;</span><span class=p>)</span>
+    <span class=n>sss</span><span class=o>.</span><span class=n>addsong</span><span class=p>(</span><span class=s1>&#39;pianai.wav&#39;</span><span class=p>)</span>
+
+    <span class=n>sss</span><span class=o>.</span><span class=n>search_and_play</span><span class=p>(</span><span class=s1>&#39;record_pianai.wav&#39;</span><span class=p>)</span>
+
+</code></pre></td></tr></table></div></div><hr><h2 id=总结>总结</h2><p>我们这个实验很多地方都很粗糙，核心的算法是从shazam公司提出的算法吸取的“指纹”的思想。希望读者可以提出宝贵建议。</p></div><div class=post-copyright><p class=copyright-item><span class=item-title>文章作者</span>
+<span class=item-content>chuxiuhong</span></p><p class=copyright-item><span class=item-title>上次更新</span>
+<span class=item-content>2016-11-14</span></p><p class=copyright-item><span class=item-title>许可协议</span>
+<span class=item-content><a rel="license noopener" href=https://creativecommons.org/licenses/by-nc-nd/4.0/ target=_blank>CC BY-NC-ND 4.0</a></span></p></div><footer class=post-footer><nav class=post-nav><a class=prev href=/post/banker-algo/><i class="iconfont icon-left"></i><span class="prev-text nav-default">银行家算法学习笔记</span>
+<span class="prev-text nav-mobile">上一篇</span></a>
+<a class=next href=/post/python-logistic/><span class="next-text nav-default">用python实现逻辑回归</span>
+<span class="next-text nav-mobile">下一篇</span>
+<i class="iconfont icon-right"></i></a></nav></footer></article></div><script src=https://utteranc.es/client.js repo=chuxiuhong/blog_comment issue-term=pathname theme=github-light crossorigin=anonymous async></script><noscript>Please enable JavaScript to view the <a href=https://github.com/utterance>comments powered by utterances.</a></noscript></div></main><footer id=footer class=footer><div class=social-links><a href=mailto:chuxiuhong@chuxiuhong.com class="iconfont icon-email" title=email></a><a href=http://github.com/chuxiuhong class="iconfont icon-github" title=github></a><a href=http://chuxiuhong.com/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a></div><div class=copyright><span class=power-by>由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动</span>
+<span class=division>|</span>
+<span class=theme-info>主题 -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a></span>
+<span class=copyright-year>&copy;
+2020 -
+2022
+<span class=heart><i class="iconfont icon-heart"></i></span><span class=author>chuxiuhong</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script><script type=text/javascript src=/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js></script><script type=text/javascript>window.MathJax={tex2jax:{inlineMath:[['$','$'],['\\(','\\)']]},showProcessingMessages:false,messageStyle:'none'};</script><script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin=anonymous></script></body></html>

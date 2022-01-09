@@ -1,0 +1,522 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>利用KD树进行异常检测 - 唯心不易</title><meta name=renderer content="webkit"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content="no-transform"><meta http-equiv=cache-control content="no-siteapp"><meta name=theme-color content="#f8f5ec"><meta name=msapplication-navbutton-color content="#f8f5ec"><meta name=apple-mobile-web-app-capable content="yes"><meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec"><meta name=author content="chuxiuhong"><meta name=description content="什么是KD树 要说KD树，我们得先说一下什么是KNN算法。 KNN是k-NearestNeighbor的简称，原理很简单：当你有一堆已经标注好的"><meta name=keywords content="Hugo,theme,even"><meta name=generator content="Hugo 0.74.2 with theme even"><link rel=canonical href=http://chuxiuhong.com/post/kd-tree/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=manifest href=/manifest.json><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link href=/sass/main.min.78f8f17bab244b9ee62ad16480c9584d5fc2db06ae20681d1ca225cefd80767c.css rel=stylesheet><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous><meta property="og:title" content="利用KD树进行异常检测"><meta property="og:description" content="什么是KD树 要说KD树，我们得先说一下什么是KNN算法。 KNN是k-NearestNeighbor的简称，原理很简单：当你有一堆已经标注好的"><meta property="og:type" content="article"><meta property="og:url" content="http://chuxiuhong.com/post/kd-tree/"><meta property="article:published_time" content="2016-10-26T19:41:20+08:00"><meta property="article:modified_time" content="2016-10-26T19:41:20+08:00"><meta itemprop=name content="利用KD树进行异常检测"><meta itemprop=description content="什么是KD树 要说KD树，我们得先说一下什么是KNN算法。 KNN是k-NearestNeighbor的简称，原理很简单：当你有一堆已经标注好的"><meta itemprop=datePublished content="2016-10-26T19:41:20+08:00"><meta itemprop=dateModified content="2016-10-26T19:41:20+08:00"><meta itemprop=wordCount content="2437"><meta itemprop=keywords content><meta name=twitter:card content="summary"><meta name=twitter:title content="利用KD树进行异常检测"><meta name=twitter:description content="什么是KD树 要说KD树，我们得先说一下什么是KNN算法。 KNN是k-NearestNeighbor的简称，原理很简单：当你有一堆已经标注好的"><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script><script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]--></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=/ class=logo>唯心不易</a></div><div class=mobile-navbar-icon><span></span><span></span><span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=/><li class=mobile-menu-item>主页</li></a><a href=/post/><li class=mobile-menu-item>归档</li></a><a href=/tags/><li class=mobile-menu-item>标签</li></a><a href=/categories/><li class=mobile-menu-item>分类</li></a><a href=/about/><li class=mobile-menu-item>关于我</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=/ class=logo>唯心不易</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=/>主页</a></li><li class=menu-item><a class=menu-item-link href=/post/>归档</a></li><li class=menu-item><a class=menu-item-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-item-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-item-link href=/about/>关于我</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>利用KD树进行异常检测</h1><div class=post-meta><span class=post-time>2016-10-26</span></div></header><div class=post-toc id=post-toc><h2 class=post-toc-title>文章目录</h2><div class="post-toc-content always-active"><nav id=TableOfContents><ul><li><a href=#什么是kd树><strong>什么是KD树</strong></a></li><li><a href=#异常检测><strong>异常检测</strong></a></li></ul></nav></div></div><div class=post-content><hr><h2 id=什么是kd树><strong>什么是KD树</strong></h2><p>要说KD树，我们得先说一下什么是KNN算法。
+KNN是k-NearestNeighbor的简称，原理很简单：当你有一堆已经标注好的数据时，你知道哪些是正类，哪些是负类。当新拿到一个没有标注的数据时，你想知道它是哪一类的。只要找到它的邻居（离它距离短）的点是什么类别的，所谓近朱者赤近墨者黑，KNN就是采用了类似的方法。</p><p><img src=/static/two_label.jpg alt=image></p><p>如上图，当有新的点不知道是哪一类时，只要看看离它最近的几个点是什么类别，我们就判断它是什么类别。</p><p>举个例子：我们将k取3（就是每次看看新来的数据点的三个住的最近的邻居），那么我们将所有数据点和新来的数据点计算一次距离，然后排序，取前三个数据点，让它们举手表决。两票及以上的类别我们就认为是新的数据点的类别。</p><p>很简单也很好的想法，但是，我们要注意到当测试集数据比较大时，由于每次未标注的数据点都要和全部的已标注的数据点进行一次距离计算，然后排序。可以说时间开销非常大。我们在此基础上，想到了一种存储点与点之间关系的算法来通过空间换时间。</p><p>举个例子：有一个二维的数据集: T={(2,3),(5,4),(9,6),(4,7),(8,1),(7,2)}</p><p>通过你已经学习的KD树的算法，按照依次选择维度，取各维中位数，是否得出和下面一样的KD树？
+<img src=/static/KD_TREE.gif alt=image2></p><hr><h2 id=异常检测><strong>异常检测</strong></h2><p>我们的数据来自于KDD Cup 1999 Data <a href=/static/kddcup.rar>点我下载数据</a></p><p>数据格式如下图
+<img src=/static/20161020152845.png alt=image3>
+数据的含义如下：
+<img src=/static/kd_tree1.png alt=image4>
+<img src=/static/kd_tree_2.png alt=image5></p><p>我们这次实验针对正常和DDOS攻击两种情况进行检测。
+取特征范围为(1,9)U(22,31)的特征中的数值型特征，最终得到16维的特征向量。将数据随机化处理后按照7:3的比例分成训练集和测试集。下面是我们组做好的训练集和测试集
+<a href=/static/ddos+normal.rar>点我下载</a></p><p>处理完的训练集和测试集如下图：
+<img src=/static/kd_tree3.png alt=image6></p><p>下面是具体实现：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-python data-lang=python><span class=c1># coding=utf8</span>
+<span class=kn>import</span> <span class=nn>math</span>
+<span class=kn>import</span> <span class=nn>time</span>
+<span class=kn>import</span> <span class=nn>matplotlib.pyplot</span> <span class=kn>as</span> <span class=nn>plt</span>
+<span class=kn>import</span> <span class=nn>numpy</span> <span class=kn>as</span> <span class=nn>np</span>
+
+<span class=n>old_settings</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>seterr</span><span class=p>(</span><span class=nb>all</span><span class=o>=</span><span class=s1>&#39;ignore&#39;</span><span class=p>)</span>
+
+<span class=c1>#定义节点类型</span>
+<span class=k>class</span> <span class=nc>KD_node</span><span class=p>:</span>
+    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>point</span><span class=o>=</span><span class=bp>None</span><span class=p>,</span> <span class=n>split</span><span class=o>=</span><span class=bp>None</span><span class=p>,</span> <span class=n>left</span><span class=o>=</span><span class=bp>None</span><span class=p>,</span> <span class=n>right</span><span class=o>=</span><span class=bp>None</span><span class=p>):</span>
+        <span class=s1>&#39;&#39;&#39;
+</span><span class=s1>
+</span><span class=s1>        :param point: 数据点的特征向量
+</span><span class=s1>        :param split: 切分的维度
+</span><span class=s1>        :param left: 左儿子
+</span><span class=s1>        :param right: 右儿子
+</span><span class=s1>        &#39;&#39;&#39;</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>point</span> <span class=o>=</span> <span class=n>point</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>split</span> <span class=o>=</span> <span class=n>split</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>left</span> <span class=o>=</span> <span class=n>left</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>right</span> <span class=o>=</span> <span class=n>right</span>
+</code></pre></td></tr></table></div></div><p>计算方差，以利用方差大小进行判断在哪一维进行切分</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-python data-lang=python><span class=k>def</span> <span class=nf>computeVariance</span><span class=p>(</span><span class=n>arrayList</span><span class=p>):</span>
+    <span class=s1>&#39;&#39;&#39;
+</span><span class=s1>
+</span><span class=s1>    :param arrayList: 所有数据某一维的向量
+</span><span class=s1>    :return: 返回
+</span><span class=s1>    &#39;&#39;&#39;</span>
+    <span class=k>for</span> <span class=n>ele</span> <span class=ow>in</span> <span class=n>arrayList</span><span class=p>:</span>
+        <span class=n>ele</span> <span class=o>=</span> <span class=nb>float</span><span class=p>(</span><span class=n>ele</span><span class=p>)</span>
+    <span class=n>LEN</span> <span class=o>=</span> <span class=nb>float</span><span class=p>(</span><span class=nb>len</span><span class=p>(</span><span class=n>arrayList</span><span class=p>))</span>
+    <span class=n>array</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>array</span><span class=p>(</span><span class=n>arrayList</span><span class=p>)</span>
+    <span class=n>sum1</span> <span class=o>=</span> <span class=nb>float</span><span class=p>(</span><span class=n>array</span><span class=o>.</span><span class=n>sum</span><span class=p>())</span>
+    <span class=n>array2</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>dot</span><span class=p>(</span><span class=n>array</span><span class=p>,</span> <span class=n>array</span><span class=o>.</span><span class=n>T</span><span class=p>)</span>
+    <span class=n>sum2</span> <span class=o>=</span> <span class=nb>float</span><span class=p>(</span><span class=n>array2</span><span class=o>.</span><span class=n>sum</span><span class=p>())</span>
+    <span class=n>mean</span> <span class=o>=</span> <span class=n>sum1</span> <span class=o>/</span> <span class=n>LEN</span>
+    <span class=n>variance</span> <span class=o>=</span> <span class=n>sum2</span> <span class=o>/</span> <span class=n>LEN</span> <span class=o>-</span> <span class=n>mean</span> <span class=o>**</span> <span class=mi>2</span>
+    <span class=k>return</span> <span class=n>variance</span>
+</code></pre></td></tr></table></div></div><p>建树</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-python data-lang=python><span class=k>def</span> <span class=nf>createKDTree</span><span class=p>(</span><span class=n>root</span><span class=p>,</span> <span class=n>data_list</span><span class=p>):</span>
+    <span class=s1>&#39;&#39;&#39;
+</span><span class=s1>
+</span><span class=s1>    :param root: 输入一个根节点，以此建树
+</span><span class=s1>    :param data_list: 数据列表
+</span><span class=s1>    :return: 返回根节点
+</span><span class=s1>    &#39;&#39;&#39;</span>
+    <span class=n>LEN</span> <span class=o>=</span> <span class=nb>len</span><span class=p>(</span><span class=n>data_list</span><span class=p>)</span>
+    <span class=k>if</span> <span class=n>LEN</span> <span class=o>==</span> <span class=mi>0</span><span class=p>:</span>
+        <span class=k>return</span>
+        <span class=c1># 数据点的维度</span>
+    <span class=n>dimension</span> <span class=o>=</span> <span class=nb>len</span><span class=p>(</span><span class=n>data_list</span><span class=p>[</span><span class=mi>0</span><span class=p>])</span> <span class=o>-</span> <span class=mi>1</span> <span class=c1>#去掉了最后一维标签维</span>
+    <span class=c1># 方差</span>
+    <span class=n>max_var</span> <span class=o>=</span> <span class=mi>0</span>
+    <span class=c1># 最后选择的划分域</span>
+    <span class=n>split</span> <span class=o>=</span> <span class=mi>0</span>
+    <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=n>dimension</span><span class=p>):</span>
+        <span class=n>ll</span> <span class=o>=</span> <span class=p>[]</span>
+        <span class=k>for</span> <span class=n>t</span> <span class=ow>in</span> <span class=n>data_list</span><span class=p>:</span>
+            <span class=n>ll</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>t</span><span class=p>[</span><span class=n>i</span><span class=p>])</span>
+        <span class=n>var</span> <span class=o>=</span> <span class=n>computeVariance</span><span class=p>(</span><span class=n>ll</span><span class=p>)</span> <span class=c1>#计算出在这一维的方差大小</span>
+        <span class=k>if</span> <span class=n>var</span> <span class=o>&gt;</span> <span class=n>max_var</span><span class=p>:</span>
+            <span class=n>max_var</span> <span class=o>=</span> <span class=n>var</span>
+            <span class=n>split</span> <span class=o>=</span> <span class=n>i</span>
+            <span class=c1># 根据划分域的数据对数据点进行排序</span>
+    <span class=n>data_list</span> <span class=o>=</span> <span class=nb>list</span><span class=p>(</span><span class=n>data_list</span><span class=p>)</span>
+    <span class=n>data_list</span><span class=o>.</span><span class=n>sort</span><span class=p>(</span><span class=n>key</span><span class=o>=</span><span class=k>lambda</span> <span class=n>x</span><span class=p>:</span> <span class=n>x</span><span class=p>[</span><span class=n>split</span><span class=p>])</span> <span class=c1>#按照在切分维度上的大小进行排序</span>
+    <span class=n>data_list</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>array</span><span class=p>(</span><span class=n>data_list</span><span class=p>)</span>
+    <span class=c1># 选择下标为len / 2的点作为分割点</span>
+    <span class=n>point</span> <span class=o>=</span> <span class=n>data_list</span><span class=p>[</span><span class=n>LEN</span> <span class=o>/</span> <span class=mi>2</span><span class=p>]</span>
+    <span class=n>root</span> <span class=o>=</span> <span class=n>KD_node</span><span class=p>(</span><span class=n>point</span><span class=p>,</span> <span class=n>split</span><span class=p>)</span>
+    <span class=n>root</span><span class=o>.</span><span class=n>left</span> <span class=o>=</span> <span class=n>createKDTree</span><span class=p>(</span><span class=n>root</span><span class=o>.</span><span class=n>left</span><span class=p>,</span> <span class=n>data_list</span><span class=p>[</span><span class=mi>0</span><span class=p>:(</span><span class=n>LEN</span> <span class=o>/</span> <span class=mi>2</span><span class=p>)])</span><span class=c1>#递归的对切分到左儿子和右儿子的数据再建树</span>
+    <span class=n>root</span><span class=o>.</span><span class=n>right</span> <span class=o>=</span> <span class=n>createKDTree</span><span class=p>(</span><span class=n>root</span><span class=o>.</span><span class=n>right</span><span class=p>,</span> <span class=n>data_list</span><span class=p>[(</span><span class=n>LEN</span> <span class=o>/</span> <span class=mi>2</span> <span class=o>+</span> <span class=mi>1</span><span class=p>):</span><span class=n>LEN</span><span class=p>])</span>
+    <span class=k>return</span> <span class=n>root</span>
+</code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-python data-lang=python><span class=k>def</span> <span class=nf>computeDist</span><span class=p>(</span><span class=n>pt1</span><span class=p>,</span> <span class=n>pt2</span><span class=p>):</span>
+    <span class=s1>&#39;&#39;&#39;
+</span><span class=s1>
+</span><span class=s1>    :param pt1: 特征向量1
+</span><span class=s1>    :param pt2: 特征向量2
+</span><span class=s1>    :return: 两个向量的欧氏距离
+</span><span class=s1>    &#39;&#39;&#39;</span>
+    <span class=n>sum_dis</span> <span class=o>=</span> <span class=mf>0.0</span>
+    <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=nb>len</span><span class=p>(</span><span class=n>pt1</span><span class=p>)):</span>
+        <span class=n>sum_dis</span> <span class=o>+=</span> <span class=p>(</span><span class=n>pt1</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>-</span> <span class=n>pt2</span><span class=p>[</span><span class=n>i</span><span class=p>])</span> <span class=o>**</span> <span class=mi>2</span>
+    <span class=c1>#实现的欧氏距离计算，效率很低的版本，可以改成numpy的向量运算</span>
+    <span class=k>return</span> <span class=n>math</span><span class=o>.</span><span class=n>sqrt</span><span class=p>(</span><span class=n>sum_dis</span><span class=p>)</span>
+
+</code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-python data-lang=python><span class=k>def</span> <span class=nf>findNN</span><span class=p>(</span><span class=n>root</span><span class=p>,</span> <span class=n>query</span><span class=p>):</span>
+    <span class=s1>&#39;&#39;&#39;
+</span><span class=s1>    
+</span><span class=s1>    :param root: 建立好的KD树的树根
+</span><span class=s1>    :param query: 查询数据
+</span><span class=s1>    :return: 与这个数据最近的前三个节点
+</span><span class=s1>    &#39;&#39;&#39;</span>
+    <span class=c1># 初始化为root的节点</span>
+    <span class=n>NN</span> <span class=o>=</span> <span class=n>root</span><span class=o>.</span><span class=n>point</span>
+    <span class=n>min_dist</span> <span class=o>=</span> <span class=n>computeDist</span><span class=p>(</span><span class=n>query</span><span class=p>,</span> <span class=n>NN</span><span class=p>)</span>
+    <span class=n>nodeList</span> <span class=o>=</span> <span class=p>[]</span>
+    <span class=n>temp_root</span> <span class=o>=</span> <span class=n>root</span>
+    <span class=n>dist_list</span> <span class=o>=</span> <span class=p>[</span><span class=n>temp_root</span><span class=o>.</span><span class=n>point</span><span class=p>,</span> <span class=bp>None</span><span class=p>,</span> <span class=bp>None</span><span class=p>]</span> <span class=c1>#用来存储前三个节点</span>
+    <span class=c1>##二分查找建立路径</span>
+    <span class=k>while</span> <span class=n>temp_root</span><span class=p>:</span>
+        <span class=n>nodeList</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>temp_root</span><span class=p>)</span> <span class=c1>#对向下走的路径进行压栈处理</span>
+        <span class=n>dd</span> <span class=o>=</span> <span class=n>computeDist</span><span class=p>(</span><span class=n>query</span><span class=p>,</span> <span class=n>temp_root</span><span class=o>.</span><span class=n>point</span><span class=p>)</span> <span class=c1>#计算当前最近节点和查询点的距离大小</span>
+        <span class=k>if</span> <span class=n>min_dist</span> <span class=o>&gt;</span> <span class=n>dd</span><span class=p>:</span>
+            <span class=n>NN</span> <span class=o>=</span> <span class=n>temp_root</span><span class=o>.</span><span class=n>point</span>
+            <span class=n>min_dist</span> <span class=o>=</span> <span class=n>dd</span>
+            <span class=c1># 当前节点的划分域</span>
+        <span class=n>temp_split</span> <span class=o>=</span> <span class=n>temp_root</span><span class=o>.</span><span class=n>split</span>
+        <span class=k>if</span> <span class=n>query</span><span class=p>[</span><span class=n>temp_split</span><span class=p>]</span> <span class=o>&lt;=</span> <span class=n>temp_root</span><span class=o>.</span><span class=n>point</span><span class=p>[</span><span class=n>temp_split</span><span class=p>]:</span>
+            <span class=n>temp_root</span> <span class=o>=</span> <span class=n>temp_root</span><span class=o>.</span><span class=n>left</span>
+        <span class=k>else</span><span class=p>:</span>
+            <span class=n>temp_root</span> <span class=o>=</span> <span class=n>temp_root</span><span class=o>.</span><span class=n>right</span>
+            <span class=c1>##回溯查找</span>
+    <span class=k>while</span> <span class=n>nodeList</span><span class=p>:</span>
+        <span class=n>back_point</span> <span class=o>=</span> <span class=n>nodeList</span><span class=o>.</span><span class=n>pop</span><span class=p>()</span>
+        <span class=n>back_split</span> <span class=o>=</span> <span class=n>back_point</span><span class=o>.</span><span class=n>split</span>
+        <span class=k>if</span> <span class=n>dist_list</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span> <span class=ow>is</span> <span class=bp>None</span><span class=p>:</span>
+            <span class=n>dist_list</span><span class=p>[</span><span class=mi>2</span><span class=p>]</span> <span class=o>=</span> <span class=n>dist_list</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span>
+            <span class=n>dist_list</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span> <span class=o>=</span> <span class=n>back_point</span><span class=o>.</span><span class=n>point</span>
+        <span class=k>elif</span> <span class=n>dist_list</span><span class=p>[</span><span class=mi>2</span><span class=p>]</span> <span class=ow>is</span> <span class=bp>None</span><span class=p>:</span>
+            <span class=n>dist_list</span><span class=p>[</span><span class=mi>2</span><span class=p>]</span> <span class=o>=</span> <span class=n>back_point</span><span class=o>.</span><span class=n>point</span>
+        <span class=k>if</span> <span class=nb>abs</span><span class=p>(</span><span class=n>query</span><span class=p>[</span><span class=n>back_split</span><span class=p>]</span> <span class=o>-</span> <span class=n>back_point</span><span class=o>.</span><span class=n>point</span><span class=p>[</span><span class=n>back_split</span><span class=p>])</span> <span class=o>&lt;</span> <span class=n>min_dist</span><span class=p>:</span> 
+            <span class=c1>#当查询点和回溯点的距离小于当前最小距离时，另一个区域有希望存在更近的节点</span>
+            <span class=c1>#如果大于这个距离，可以理解为假设在二维空间上，直角三角形的直角边已经不满足要求了，那么斜边也一定不满足要求</span>
+            <span class=k>if</span> <span class=n>query</span><span class=p>[</span><span class=n>back_split</span><span class=p>]</span> <span class=o>&lt;</span> <span class=n>back_point</span><span class=o>.</span><span class=n>point</span><span class=p>[</span><span class=n>back_split</span><span class=p>]:</span>
+                <span class=n>temp_root</span> <span class=o>=</span> <span class=n>back_point</span><span class=o>.</span><span class=n>right</span>
+            <span class=k>else</span><span class=p>:</span>
+                <span class=n>temp_root</span> <span class=o>=</span> <span class=n>back_point</span><span class=o>.</span><span class=n>left</span>
+            <span class=k>if</span> <span class=n>temp_root</span><span class=p>:</span>
+                <span class=n>nodeList</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>temp_root</span><span class=p>)</span>
+                <span class=n>curDist</span> <span class=o>=</span> <span class=n>computeDist</span><span class=p>(</span><span class=n>query</span><span class=p>,</span> <span class=n>temp_root</span><span class=o>.</span><span class=n>point</span><span class=p>)</span>
+                <span class=k>if</span> <span class=n>min_dist</span> <span class=o>&gt;</span> <span class=n>curDist</span><span class=p>:</span>
+                    <span class=n>min_dist</span> <span class=o>=</span> <span class=n>curDist</span>
+                    <span class=n>dist_list</span><span class=p>[</span><span class=mi>2</span><span class=p>]</span> <span class=o>=</span> <span class=n>dist_list</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span>
+                    <span class=n>dist_list</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span> <span class=o>=</span> <span class=n>dist_list</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span>
+                    <span class=n>dist_list</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span> <span class=o>=</span> <span class=n>temp_root</span><span class=o>.</span><span class=n>point</span>
+                <span class=k>elif</span> <span class=n>dist_list</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span> <span class=ow>is</span> <span class=bp>None</span> <span class=ow>or</span> <span class=n>curDist</span> <span class=o>&lt;</span> <span class=n>computeDist</span><span class=p>(</span><span class=n>dist_list</span><span class=p>[</span><span class=mi>1</span><span class=p>],</span> <span class=n>query</span><span class=p>):</span>
+                    <span class=n>dist_list</span><span class=p>[</span><span class=mi>2</span><span class=p>]</span> <span class=o>=</span> <span class=n>dist_list</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span>
+                    <span class=n>dist_list</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span> <span class=o>=</span> <span class=n>temp_root</span><span class=o>.</span><span class=n>point</span>
+                <span class=k>elif</span> <span class=n>dist_list</span><span class=p>[</span><span class=mi>2</span><span class=p>]</span> <span class=ow>is</span> <span class=bp>None</span> <span class=ow>or</span> <span class=n>curDist</span> <span class=o>&lt;</span> <span class=n>computeDist</span><span class=p>(</span><span class=n>dist_list</span><span class=p>[</span><span class=mi>1</span><span class=p>],</span> <span class=n>query</span><span class=p>):</span>
+                    <span class=n>dist_list</span><span class=p>[</span><span class=mi>2</span><span class=p>]</span> <span class=o>=</span> <span class=n>temp_root</span><span class=o>.</span><span class=n>point</span>
+    <span class=k>return</span> <span class=n>dist_list</span>
+</code></pre></td></tr></table></div></div><p>进行判断</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-python data-lang=python><span class=k>def</span> <span class=nf>judge_if_normal</span><span class=p>(</span><span class=n>dist_list</span><span class=p>):</span>
+    <span class=s1>&#39;&#39;&#39;
+</span><span class=s1>    
+</span><span class=s1>    :param dist_list: 利用findNN查找出的最近三个节点进行投票表决
+</span><span class=s1>    :return: 
+</span><span class=s1>    &#39;&#39;&#39;</span>
+    <span class=n>normal_times</span> <span class=o>=</span> <span class=mi>0</span>
+    <span class=n>except_times</span> <span class=o>=</span> <span class=mi>0</span>
+    <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=n>dist_list</span><span class=p>:</span>
+        <span class=k>if</span> <span class=nb>abs</span><span class=p>(</span><span class=n>i</span><span class=p>[</span><span class=o>-</span><span class=mi>1</span><span class=p>]</span> <span class=o>-</span> <span class=mf>0.0</span><span class=p>)</span> <span class=o>&lt;</span> <span class=mf>1e-7</span><span class=p>:</span> <span class=c1>#浮点数的比较</span>
+            <span class=n>normal_times</span> <span class=o>+=</span> <span class=mi>1</span>
+        <span class=k>else</span><span class=p>:</span>
+            <span class=n>except_times</span> <span class=o>+=</span> <span class=mi>1</span>
+    <span class=k>if</span> <span class=n>normal_times</span> <span class=o>&gt;</span> <span class=n>except_times</span><span class=p>:</span> <span class=c1>#判断是normal</span>
+        <span class=k>return</span> <span class=bp>True</span>
+    <span class=k>else</span><span class=p>:</span>
+        <span class=k>return</span> <span class=bp>False</span>
+</code></pre></td></tr></table></div></div><p>数据预处理</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-python data-lang=python><span class=k>def</span> <span class=nf>pre_data</span><span class=p>(</span><span class=n>path</span><span class=p>):</span>
+    <span class=n>f</span> <span class=o>=</span> <span class=nb>open</span><span class=p>(</span><span class=n>path</span><span class=p>)</span>
+    <span class=n>lines</span> <span class=o>=</span> <span class=n>f</span><span class=o>.</span><span class=n>readlines</span><span class=p>()</span>
+    <span class=n>f</span><span class=o>.</span><span class=n>close</span><span class=p>()</span>
+    <span class=n>lstall</span> <span class=o>=</span> <span class=p>[]</span>
+    <span class=k>for</span> <span class=n>line</span> <span class=ow>in</span> <span class=n>lines</span><span class=p>:</span>
+        <span class=n>lstn</span> <span class=o>=</span> <span class=p>[]</span>
+        <span class=n>lst</span> <span class=o>=</span> <span class=n>line</span><span class=o>.</span><span class=n>split</span><span class=p>(</span><span class=s2>&#34;,&#34;</span><span class=p>)</span>
+        <span class=n>u</span> <span class=o>=</span> <span class=mi>0</span>
+        <span class=n>y</span> <span class=o>=</span> <span class=mi>0</span>
+        <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mi>9</span><span class=p>):</span>
+            <span class=k>if</span> <span class=n>lst</span><span class=p>[</span><span class=n>i</span><span class=p>]</span><span class=o>.</span><span class=n>isdigit</span><span class=p>():</span>
+                <span class=n>lstn</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=nb>float</span><span class=p>(</span><span class=n>lst</span><span class=p>[</span><span class=n>i</span><span class=p>]))</span>
+                <span class=n>u</span> <span class=o>+=</span> <span class=mi>1</span>
+            <span class=k>else</span><span class=p>:</span>
+                <span class=k>pass</span>
+        <span class=k>for</span> <span class=n>j</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>21</span><span class=p>,</span> <span class=mi>31</span><span class=p>):</span>
+            <span class=k>try</span><span class=p>:</span>
+                <span class=n>lstn</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=nb>float</span><span class=p>(</span><span class=n>lst</span><span class=p>[</span><span class=n>j</span><span class=p>]))</span>
+                <span class=n>y</span> <span class=o>+=</span> <span class=mi>1</span>
+            <span class=k>except</span><span class=p>:</span>
+                <span class=k>pass</span>
+        <span class=k>if</span> <span class=n>lst</span><span class=p>[</span><span class=nb>len</span><span class=p>(</span><span class=n>lst</span><span class=p>)</span> <span class=o>-</span> <span class=mi>1</span><span class=p>]</span> <span class=o>==</span> <span class=s2>&#34;smurf.</span><span class=se>\n</span><span class=s2>&#34;</span> <span class=ow>or</span> <span class=n>lst</span><span class=p>[</span><span class=nb>len</span><span class=p>(</span><span class=n>lst</span><span class=p>)</span> <span class=o>-</span> <span class=mi>1</span><span class=p>]</span> <span class=o>==</span> <span class=s2>&#34;teardrop.</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>:</span>
+            <span class=n>lstn</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=nb>int</span><span class=p>(</span><span class=s2>&#34;1&#34;</span><span class=p>))</span>
+        <span class=k>else</span><span class=p>:</span>
+            <span class=n>lstn</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=nb>int</span><span class=p>(</span><span class=s2>&#34;0&#34;</span><span class=p>))</span>
+        <span class=n>lstall</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>lstn</span><span class=p>)</span>
+    <span class=n>nplst</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>array</span><span class=p>(</span><span class=n>lstall</span><span class=p>,</span> <span class=n>dtype</span><span class=o>=</span><span class=n>np</span><span class=o>.</span><span class=n>float16</span><span class=p>)</span>
+    <span class=k>return</span> <span class=n>nplst</span>
+</code></pre></td></tr></table></div></div><p>下面就是个人的测试代码了，大概运行了40分钟才全跑完</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-python data-lang=python><span class=k>def</span> <span class=nf>my_test</span><span class=p>(</span><span class=n>all_train_data</span><span class=p>,</span> <span class=n>all_test_data</span><span class=p>,</span> <span class=n>train_data_num</span><span class=p>):</span>
+    <span class=n>train_data</span> <span class=o>=</span> <span class=n>all_train_data</span><span class=p>[:</span><span class=n>train_data_num</span><span class=p>]</span>
+    <span class=n>train_time_start</span> <span class=o>=</span> <span class=n>time</span><span class=o>.</span><span class=n>time</span><span class=p>()</span>
+    <span class=n>root</span> <span class=o>=</span> <span class=n>KD_node</span><span class=p>()</span>
+    <span class=n>root</span> <span class=o>=</span> <span class=n>createKDTree</span><span class=p>(</span><span class=n>root</span><span class=p>,</span> <span class=n>train_data</span><span class=p>)</span>
+    <span class=n>train_time_end</span> <span class=o>=</span> <span class=n>time</span><span class=o>.</span><span class=n>time</span><span class=p>()</span>
+    <span class=n>train_time</span> <span class=o>=</span> <span class=n>train_time_end</span> <span class=o>-</span> <span class=n>train_time_start</span>
+    <span class=n>right</span> <span class=o>=</span> <span class=mi>0</span>
+    <span class=n>error</span> <span class=o>=</span> <span class=mi>0</span>
+    <span class=n>test_time_start</span> <span class=o>=</span> <span class=n>time</span><span class=o>.</span><span class=n>time</span><span class=p>()</span>
+    <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=nb>len</span><span class=p>(</span><span class=n>all_test_data</span><span class=p>)):</span>
+        <span class=k>if</span> <span class=n>judge_if_normal</span><span class=p>(</span><span class=n>findNN</span><span class=p>(</span><span class=n>root</span><span class=p>,</span> <span class=n>all_test_data</span><span class=p>[</span><span class=n>i</span><span class=p>]))</span> <span class=ow>is</span> <span class=bp>True</span> <span class=ow>and</span> <span class=nb>abs</span><span class=p>(</span><span class=n>all_test_data</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=o>-</span><span class=mi>1</span><span class=p>]</span> <span class=o>-</span> <span class=mf>0.0</span><span class=p>)</span> <span class=o>&lt;</span> <span class=mf>1e-7</span><span class=p>:</span>
+            <span class=n>right</span> <span class=o>+=</span> <span class=mi>1</span>
+        <span class=k>elif</span> <span class=n>judge_if_normal</span><span class=p>(</span><span class=n>findNN</span><span class=p>(</span><span class=n>root</span><span class=p>,</span> <span class=n>all_test_data</span><span class=p>[</span><span class=n>i</span><span class=p>]))</span> <span class=ow>is</span> <span class=bp>False</span> <span class=ow>and</span> <span class=nb>abs</span><span class=p>(</span><span class=n>all_test_data</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=o>-</span><span class=mi>1</span><span class=p>]</span> <span class=o>-</span> <span class=mf>1.0</span><span class=p>)</span> <span class=o>&lt;</span> <span class=mf>1e-7</span><span class=p>:</span>
+            <span class=n>right</span> <span class=o>+=</span> <span class=mi>1</span>
+        <span class=k>else</span><span class=p>:</span>
+            <span class=n>error</span> <span class=o>+=</span> <span class=mi>1</span>
+    <span class=n>test_time_end</span> <span class=o>=</span> <span class=n>time</span><span class=o>.</span><span class=n>time</span><span class=p>()</span>
+    <span class=n>test_time</span> <span class=o>=</span> <span class=n>test_time_end</span> <span class=o>-</span> <span class=n>test_time_start</span>
+    <span class=n>right_ratio</span> <span class=o>=</span> <span class=nb>float</span><span class=p>(</span><span class=n>right</span><span class=p>)</span> <span class=o>/</span> <span class=p>(</span><span class=n>right</span> <span class=o>+</span> <span class=n>error</span><span class=p>)</span>
+    <span class=k>return</span> <span class=n>right_ratio</span><span class=p>,</span> <span class=n>train_time</span><span class=p>,</span> <span class=n>test_time</span>
+
+
+<span class=k>def</span> <span class=nf>draw</span><span class=p>(</span><span class=n>train_num_list</span><span class=o>=</span><span class=p>[</span><span class=mi>10</span><span class=p>,</span> <span class=mi>100</span><span class=p>,</span> <span class=mi>1000</span><span class=p>,</span> <span class=mi>10000</span><span class=p>],</span> <span class=n>train_data</span><span class=o>=</span><span class=p>[],</span> <span class=n>test_data</span><span class=o>=</span><span class=p>[]):</span>
+    <span class=n>train_time_list</span> <span class=o>=</span> <span class=p>[]</span>
+    <span class=n>test_time_list</span> <span class=o>=</span> <span class=p>[]</span>
+    <span class=n>right_ratio_list</span> <span class=o>=</span> <span class=p>[]</span>
+    <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=n>train_num_list</span><span class=p>:</span>
+        <span class=k>print</span> <span class=s1>&#39;start run &#39;</span> <span class=o>+</span> <span class=n>i</span><span class=o>.</span><span class=fm>__str__</span><span class=p>()</span>
+        <span class=n>temp</span> <span class=o>=</span> <span class=n>my_test</span><span class=p>(</span><span class=n>train_data</span><span class=p>,</span> <span class=n>test_data</span><span class=p>,</span> <span class=n>i</span><span class=p>)</span>
+        <span class=n>right_ratio_list</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>temp</span><span class=p>[</span><span class=mi>0</span><span class=p>])</span>
+        <span class=n>train_time_list</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>temp</span><span class=p>[</span><span class=mi>1</span><span class=p>])</span>
+        <span class=n>test_time_list</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>temp</span><span class=p>[</span><span class=mi>2</span><span class=p>])</span>
+    <span class=n>plt</span><span class=o>.</span><span class=n>title</span><span class=p>(</span><span class=s1>&#39;train data num from &#39;</span> <span class=o>+</span> <span class=n>train_num_list</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span><span class=o>.</span><span class=fm>__str__</span><span class=p>()</span> <span class=o>+</span> <span class=s1>&#39; to &#39;</span> <span class=o>+</span> <span class=n>train_num_list</span><span class=p>[:</span><span class=o>-</span><span class=mi>1</span><span class=p>]</span><span class=o>.</span><span class=fm>__str__</span><span class=p>())</span>
+    <span class=n>plt</span><span class=o>.</span><span class=n>subplot</span><span class=p>(</span><span class=mi>311</span><span class=p>)</span>
+    <span class=n>plt</span><span class=o>.</span><span class=n>plot</span><span class=p>(</span><span class=n>train_num_list</span><span class=p>,</span> <span class=n>right_ratio_list</span><span class=p>,</span> <span class=n>c</span><span class=o>=</span><span class=s1>&#39;b&#39;</span><span class=p>)</span>
+    <span class=n>plt</span><span class=o>.</span><span class=n>xlabel</span><span class=p>(</span><span class=s1>&#39;train data num&#39;</span><span class=p>)</span>
+    <span class=n>plt</span><span class=o>.</span><span class=n>ylabel</span><span class=p>(</span><span class=s1>&#39;right ratio&#39;</span><span class=p>)</span>
+    <span class=n>plt</span><span class=o>.</span><span class=n>grid</span><span class=p>(</span><span class=bp>True</span><span class=p>)</span>
+    <span class=n>plt</span><span class=o>.</span><span class=n>subplot</span><span class=p>(</span><span class=mi>312</span><span class=p>)</span>
+    <span class=n>plt</span><span class=o>.</span><span class=n>plot</span><span class=p>(</span><span class=n>train_num_list</span><span class=p>,</span> <span class=n>train_time_list</span><span class=p>,</span> <span class=n>c</span><span class=o>=</span><span class=s1>&#39;r&#39;</span><span class=p>)</span>
+    <span class=n>plt</span><span class=o>.</span><span class=n>xlabel</span><span class=p>(</span><span class=s1>&#39;train data num&#39;</span><span class=p>)</span>
+    <span class=n>plt</span><span class=o>.</span><span class=n>ylabel</span><span class=p>(</span><span class=s1>&#39;time of train data (s)&#39;</span><span class=p>)</span>
+    <span class=n>plt</span><span class=o>.</span><span class=n>grid</span><span class=p>(</span><span class=bp>True</span><span class=p>)</span>
+    <span class=n>plt</span><span class=o>.</span><span class=n>subplot</span><span class=p>(</span><span class=mi>313</span><span class=p>)</span>
+    <span class=n>plt</span><span class=o>.</span><span class=n>plot</span><span class=p>(</span><span class=n>train_num_list</span><span class=p>,</span> <span class=n>test_time_list</span><span class=p>,</span> <span class=n>c</span><span class=o>=</span><span class=s1>&#39;g&#39;</span><span class=p>)</span>
+    <span class=n>plt</span><span class=o>.</span><span class=n>xlabel</span><span class=p>(</span><span class=s1>&#39;train data num&#39;</span><span class=p>)</span>
+    <span class=n>plt</span><span class=o>.</span><span class=n>ylabel</span><span class=p>(</span><span class=s1>&#39;time of test data (s)&#39;</span><span class=p>)</span>
+    <span class=n>plt</span><span class=o>.</span><span class=n>grid</span><span class=p>(</span><span class=bp>True</span><span class=p>)</span>
+    <span class=n>plt</span><span class=o>.</span><span class=n>show</span><span class=p>()</span>
+
+
+<span class=n>data</span> <span class=o>=</span> <span class=n>pre_data</span><span class=p>(</span><span class=s1>&#39;KDD-test\ddos+normal_70.txt&#39;</span><span class=p>)</span>
+<span class=n>data2</span> <span class=o>=</span> <span class=n>pre_data</span><span class=p>(</span><span class=s1>&#39;KDD-test\ddos+normal_30.txt&#39;</span><span class=p>)</span>
+<span class=s1>&#39;&#39;&#39;
+</span><span class=s1>建议开始将测试数据调小点，因为时间很长，下面这是全部训练集和全部测试集，共花费了40分钟才跑完。我是第六代i7 6700HQ+16G内存+1070+win10
+</span><span class=s1>&#39;&#39;&#39;</span>
+<span class=n>draw</span><span class=p>(</span><span class=n>train_num_list</span><span class=o>=</span><span class=p>[</span><span class=mi>10</span><span class=p>,</span> <span class=mi>100</span><span class=p>,</span> <span class=mi>500</span><span class=p>,</span> <span class=mi>1000</span><span class=p>,</span> <span class=mi>2000</span><span class=p>,</span> <span class=mi>3000</span><span class=p>,</span> <span class=mi>5000</span><span class=p>,</span> <span class=mi>10000</span><span class=p>,</span> <span class=mi>15000</span><span class=p>,</span> <span class=mi>20000</span><span class=p>,</span> <span class=mi>50000</span><span class=p>,</span> <span class=mi>100000</span><span class=p>,</span> <span class=mi>265300</span><span class=p>],</span>
+     <span class=n>train_data</span><span class=o>=</span><span class=n>data</span><span class=p>[:],</span> <span class=n>test_data</span><span class=o>=</span><span class=n>data2</span><span class=p>[:])</span>
+
+</code></pre></td></tr></table></div></div><p>跑完的效果如图所示：
+<img src=/static/kd_tree_train.jpeg alt=image7>
+正确率最终达到95%以上。开始出现的波动我们怀疑是数据在开始没有达到良好的随机效果。
+训练时间与训练数据量明显成线性关系
+测试时间确实和理论一致，是Nlog(M)的时间复杂度。应该说这种时间复杂度的降低是我们使用KD树而不是原版的KNN最重要的地方。在原来的KNN算法下，假设训练集大小为M，测试集大小为N，则查询时间复杂度可以达到O(MN)，但是我们降低到O(Nlog(M))，还是挺合算的。</p><p>本次实验可以优化的地方很多，但是时间匆忙，没有做更深的扩展。欢迎大家提出更多建议。</p></div><div class=post-copyright><p class=copyright-item><span class=item-title>文章作者</span>
+<span class=item-content>chuxiuhong</span></p><p class=copyright-item><span class=item-title>上次更新</span>
+<span class=item-content>2016-10-26</span></p><p class=copyright-item><span class=item-title>许可协议</span>
+<span class=item-content><a rel="license noopener" href=https://creativecommons.org/licenses/by-nc-nd/4.0/ target=_blank>CC BY-NC-ND 4.0</a></span></p></div><footer class=post-footer><nav class=post-nav><a class=prev href=/post/python-logistic/><i class="iconfont icon-left"></i><span class="prev-text nav-default">用python实现逻辑回归</span>
+<span class="prev-text nav-mobile">上一篇</span></a>
+<a class=next href=/post/python-lcs-algo/><span class="next-text nav-default">用python实现最长公共子序列算法(找到所有最长公共子串)</span>
+<span class="next-text nav-mobile">下一篇</span>
+<i class="iconfont icon-right"></i></a></nav></footer></article></div><script src=https://utteranc.es/client.js repo=chuxiuhong/blog_comment issue-term=pathname theme=github-light crossorigin=anonymous async></script><noscript>Please enable JavaScript to view the <a href=https://github.com/utterance>comments powered by utterances.</a></noscript></div></main><footer id=footer class=footer><div class=social-links><a href=mailto:chuxiuhong@chuxiuhong.com class="iconfont icon-email" title=email></a><a href=http://github.com/chuxiuhong class="iconfont icon-github" title=github></a><a href=http://chuxiuhong.com/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a></div><div class=copyright><span class=power-by>由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动</span>
+<span class=division>|</span>
+<span class=theme-info>主题 -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a></span>
+<span class=copyright-year>&copy;
+2020 -
+2022
+<span class=heart><i class="iconfont icon-heart"></i></span><span class=author>chuxiuhong</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script><script type=text/javascript src=/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js></script><script type=text/javascript>window.MathJax={tex2jax:{inlineMath:[['$','$'],['\\(','\\)']]},showProcessingMessages:false,messageStyle:'none'};</script><script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin=anonymous></script></body></html>

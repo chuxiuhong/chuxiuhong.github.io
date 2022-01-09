@@ -1,0 +1,67 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>银行家算法学习笔记 - 唯心不易</title><meta name=renderer content="webkit"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content="no-transform"><meta http-equiv=cache-control content="no-siteapp"><meta name=theme-color content="#f8f5ec"><meta name=msapplication-navbutton-color content="#f8f5ec"><meta name=apple-mobile-web-app-capable content="yes"><meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec"><meta name=author content="chuxiuhong"><meta name=description content="死锁避免——银行家算法的应用背景 要想说银行家，首先得说死锁问题，因为银行家算法就是为了死锁避免提出的。那么，什么是死锁？简单的举个例子：俩人"><meta name=keywords content="Hugo,theme,even"><meta name=generator content="Hugo 0.74.2 with theme even"><link rel=canonical href=http://chuxiuhong.com/post/banker-algo/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=manifest href=/manifest.json><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link href=/sass/main.min.78f8f17bab244b9ee62ad16480c9584d5fc2db06ae20681d1ca225cefd80767c.css rel=stylesheet><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous><meta property="og:title" content="银行家算法学习笔记"><meta property="og:description" content="死锁避免——银行家算法的应用背景 要想说银行家，首先得说死锁问题，因为银行家算法就是为了死锁避免提出的。那么，什么是死锁？简单的举个例子：俩人"><meta property="og:type" content="article"><meta property="og:url" content="http://chuxiuhong.com/post/banker-algo/"><meta property="article:published_time" content="2016-11-26T12:41:20+08:00"><meta property="article:modified_time" content="2016-11-26T12:41:20+08:00"><meta itemprop=name content="银行家算法学习笔记"><meta itemprop=description content="死锁避免——银行家算法的应用背景 要想说银行家，首先得说死锁问题，因为银行家算法就是为了死锁避免提出的。那么，什么是死锁？简单的举个例子：俩人"><meta itemprop=datePublished content="2016-11-26T12:41:20+08:00"><meta itemprop=dateModified content="2016-11-26T12:41:20+08:00"><meta itemprop=wordCount content="1941"><meta itemprop=keywords content><meta name=twitter:card content="summary"><meta name=twitter:title content="银行家算法学习笔记"><meta name=twitter:description content="死锁避免——银行家算法的应用背景 要想说银行家，首先得说死锁问题，因为银行家算法就是为了死锁避免提出的。那么，什么是死锁？简单的举个例子：俩人"><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script><script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]--></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=/ class=logo>唯心不易</a></div><div class=mobile-navbar-icon><span></span><span></span><span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=/><li class=mobile-menu-item>主页</li></a><a href=/post/><li class=mobile-menu-item>归档</li></a><a href=/tags/><li class=mobile-menu-item>标签</li></a><a href=/categories/><li class=mobile-menu-item>分类</li></a><a href=/about/><li class=mobile-menu-item>关于我</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=/ class=logo>唯心不易</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=/>主页</a></li><li class=menu-item><a class=menu-item-link href=/post/>归档</a></li><li class=menu-item><a class=menu-item-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-item-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-item-link href=/about/>关于我</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>银行家算法学习笔记</h1><div class=post-meta><span class=post-time>2016-11-26</span></div></header><div class=post-toc id=post-toc><h2 class=post-toc-title>文章目录</h2><div class="post-toc-content always-active"><nav id=TableOfContents><ul><li><a href=#死锁避免银行家算法的应用背景>死锁避免——银行家算法的应用背景</a></li><li><a href=#银行家算法>银行家算法</a></li><li><a href=#安全判定算法><strong>安全判定算法</strong></a></li><li><a href=#示例><strong>示例</strong></a></li><li><a href=#资源请求算法><strong>资源请求算法</strong></a></li></ul></nav></div></div><div class=post-content><h2 id=死锁避免银行家算法的应用背景>死锁避免——银行家算法的应用背景</h2><p>要想说银行家，首先得说死锁问题，因为银行家算法就是为了死锁避免提出的。那么，什么是死锁？简单的举个例子：俩人吃饺子，一个人手里拿着酱油，一个人手里拿着醋，拿酱油的对拿着醋的人说：“你把醋给我，我就把酱油给你”；拿醋的对拿着酱油的人说：“不，你把酱油给我，我把醋给你。”</p><p>于是，俩人这两份调料是永远吃不上了。这就是死锁。</p><p>那么，为啥这个算法叫银行家算法？因为这个算法同样可以用于银行的贷款业务。让我们考虑下面的情况。</p><blockquote><p>一个银行家共有20亿财产
+第一个开发商：已贷款15亿，资金紧张还需3亿。
+第二个开发商：已贷款5亿，运转良好能收回。
+第三个开发商：欲贷款18亿</p></blockquote><p>在这种情况下，如果你是银行家，你怎么处理这种情况？一个常规的想法就是先等着第二个开发商把钱收回来，然后手里有了5个亿，再把3个亿贷款给第一个开发商，等第一个开发商收回来18个亿，然后再把钱贷款给第三个开发商。
+这里面什么值得学习呢？最重要的就是眼光放长一点，不要只看着手里有多少钱，同时要注意到别人欠自己的钱怎么能收回来。</p><p>那么正经点说这个问题，第一个例子中：醋和酱油是资源，这俩吃饺子的是进程；第二个例子中：银行家是资源，开发商是进程。在操作系统中，有内存，硬盘等等资源被众多进程渴求着，那么这些资源怎么分配给他们才能避免“银行家破产”的风险？</p><hr><h2 id=银行家算法>银行家算法</h2><p><strong>安全序列</strong></p><p>安全序列是指对当前申请资源的进程排出一个序列，保证按照这个序列分配资源完成进程，不会发生“酱油和醋”的尴尬问题。</p><p>我们假设有进程P1,P2,&mldr;..Pn
+则安全序列要求满足：Pi(1&lt;=i&lt;=n)需要资源&lt;=剩余资源 + 分配给Pj(1 &lt;= j &lt; i)资源
+为什么等号右边还有已经被分配出去的资源？想想银行家那个问题，分配出去的资源就好比第二个开发商，人家能还回来钱，咱得把这个考虑在内。</p><p>我们定义下面的数据结构</p><pre><code>int n,m; //系统中进程总数n和资源种类总数m
+int Available[1..m]; //资源当前可用总量
+int Allocation[1..n,1..m]; //当前给分配给每个进程的各种资源数量
+int Need[1..n,1..m];//当前每个进程还需分配的各种资源数量
+int Work[1..m]; //当前可分配的资源
+bool Finish[1..n]; //进程是否结束
+</code></pre><hr><h2 id=安全判定算法><strong>安全判定算法</strong></h2><p>1.初始化</p><pre><code>Work = Available（动态记录当前剩余资源）
+Finish[i] = false（设定所有进程均未完成）
+</code></pre><p>2.查找可执行进程Pi（未完成但目前剩余资源可满足其需要，这样的进程是能够完成的）</p><pre><code>Finish[i] = false          
+Need[i] &lt;= Work 
+如果没有这样的进程Pi，则跳转到第4步
+</code></pre><p>3.（若有则）Pi一定能完成，并归还其占用的资源，即：</p><pre><code>Finish[i] = true           
+Work = Work +Allocation[i]
+GOTO 第2步，继续查找
+</code></pre><p>4.如果所有进程Pi都是能完成的，即Finish[i]=ture
+则系统处于安全状态，否则系统处于不安全状态</p><p>伪代码:</p><pre><code>Boolean Found;
+Work = Available; Finish[1..n] = false; 
+while(true){
+    //不断的找可执行进程
+   Found = false;
+   for(i=1; i&lt;=n; i++){
+     if(Finish[i]==false &amp;&amp; Need[i]&lt;=Work){
+        Work = Work + Allocation[i];//把放出去的贷款也当做自己的资产
+        Finish[i] = true; 
+        Found = true;
+      }
+    }
+   if(Found==false)break;
+ }
+for(i=1;i&lt;=n;i++) 
+  if(Finish[i]==false)return “deadlock”; //如果有进程是完不成的，那么就是有死锁
+</code></pre><hr><h2 id=示例><strong>示例</strong></h2><p>举个实际例子，假设下面的初始状态：</p><table><thead><tr><th align=center>process</th><th align=center>Allocation</th><th align=center>Need</th><th align=center>Available</th></tr></thead><tbody><tr><td align=center></td><td align=center>A B C</td><td align=center>A B C</td><td align=center>A B C</td></tr><tr><td align=center>P0</td><td align=center>0 1 0</td><td align=center>7 4 3</td><td align=center>3 3 2</td></tr><tr><td align=center>P1</td><td align=center>2 0 0</td><td align=center>1 2 2</td><td align=center></td></tr><tr><td align=center>P2</td><td align=center>3 0 2</td><td align=center>6 0 0</td><td align=center></td></tr><tr><td align=center>P3</td><td align=center>2 1 1</td><td align=center>0 1 1</td><td align=center></td></tr><tr><td align=center>P4</td><td align=center>0 0 2</td><td align=center>4 3 1</td><td align=center></td></tr></tbody></table><p>首先，进入算法第一步，初始化。
+那么Work = Available = [3 3 2]</p><p>首先看P0：
+P0的Need为[7 4 3]，Available不能满足，于是跳过去</p><p>P1的Need为[1 2 2]可以满足，我们令Work = Allocation[P1] + Work
+此时Work = [5 3 2]</p><p>再看P2，P2的Need为[6 0 0]，那么现有资源不满足。跳过去。</p><p>看P3，那么看P3，Work可以满足。那么令Work = Allocation[P3] + Work，此时Work = [7 4 3]</p><p>再看P4，Work可以满足。令Work = Allocation[P4] + Work ，此时Work = [7 4 5]</p><p>到此第一轮循环完毕，由于找到了可用进程，那么进入第二轮循环。</p><p>看P0，Work此时可以满足。令Work = Allocation[P0] + Work ，此时Work = [7 5 5]</p><p>再看P2，此时Work可以满足P2。令Work = Allocation[P2] + Work ， 此时Work = [10 5 7]</p><p>至此，算法运行完毕。找到安全序列&lt;P1,P3,P4,P0,P2>，证明此时没有死锁危险。(安全序列未必唯一)</p><hr><h2 id=资源请求算法><strong>资源请求算法</strong></h2><p>之前说完了怎么判定当前情况是否安全，下面就是说当有进程新申请资源的时候如何处理。
+我们将第i个进程请求的资源数记为Requests[i]</p><p>算法流程：</p><p>1.如果Requests[i]&lt;=Need[i]，则转到第二步。否则，返回异常。这一步是控制进程申请的资源不得大于需要的资源</p><p>2.如果Requests[i]&lt;=Available，则转到第三步，否则Pi等待资源。</p><p>3.如果满足前两步，那么做如下操作：</p><pre><code>Available = Available -Requests[i]
+Allocation = Allocation[i]+Requests[i]
+Need[i]=Need[i]-Requests[i]
+调用安全判定算法，检查是否安全
+if(安全)
+{
+    申请成功，资源分配
+}
+else
+{
+    申请失败，资源撤回。第三步前几个操作进行逆操作
+}</code></pre></div><div class=post-copyright><p class=copyright-item><span class=item-title>文章作者</span>
+<span class=item-content>chuxiuhong</span></p><p class=copyright-item><span class=item-title>上次更新</span>
+<span class=item-content>2016-11-26</span></p><p class=copyright-item><span class=item-title>许可协议</span>
+<span class=item-content><a rel="license noopener" href=https://creativecommons.org/licenses/by-nc-nd/4.0/ target=_blank>CC BY-NC-ND 4.0</a></span></p></div><footer class=post-footer><nav class=post-nav><a class=prev href=/post/minglingci/><i class="iconfont icon-left"></i><span class="prev-text nav-default">不到一百行实现一个命令词识别</span>
+<span class="prev-text nav-mobile">上一篇</span></a>
+<a class=next href=/post/shazam/><span class="next-text nav-default">听歌识曲--用python实现一个音乐检索器</span>
+<span class="next-text nav-mobile">下一篇</span>
+<i class="iconfont icon-right"></i></a></nav></footer></article></div><script src=https://utteranc.es/client.js repo=chuxiuhong/blog_comment issue-term=pathname theme=github-light crossorigin=anonymous async></script><noscript>Please enable JavaScript to view the <a href=https://github.com/utterance>comments powered by utterances.</a></noscript></div></main><footer id=footer class=footer><div class=social-links><a href=mailto:chuxiuhong@chuxiuhong.com class="iconfont icon-email" title=email></a><a href=http://github.com/chuxiuhong class="iconfont icon-github" title=github></a><a href=http://chuxiuhong.com/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a></div><div class=copyright><span class=power-by>由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动</span>
+<span class=division>|</span>
+<span class=theme-info>主题 -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a></span>
+<span class=copyright-year>&copy;
+2020 -
+2022
+<span class=heart><i class="iconfont icon-heart"></i></span><span class=author>chuxiuhong</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script><script type=text/javascript src=/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js></script><script type=text/javascript>window.MathJax={tex2jax:{inlineMath:[['$','$'],['\\(','\\)']]},showProcessingMessages:false,messageStyle:'none'};</script><script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin=anonymous></script></body></html>

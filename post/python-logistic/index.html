@@ -1,0 +1,233 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>用python实现逻辑回归 - 唯心不易</title><meta name=renderer content="webkit"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content="no-transform"><meta http-equiv=cache-control content="no-siteapp"><meta name=theme-color content="#f8f5ec"><meta name=msapplication-navbutton-color content="#f8f5ec"><meta name=apple-mobile-web-app-capable content="yes"><meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec"><meta name=author content="chuxiuhong"><meta name=description content="机器学习课程的一个实验，整理出来共享。 原理很简单，优化方法是用的梯度下降。后面有测试结果。 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25"><meta name=keywords content="Hugo,theme,even"><meta name=generator content="Hugo 0.74.2 with theme even"><link rel=canonical href=http://chuxiuhong.com/post/python-logistic/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=manifest href=/manifest.json><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link href=/sass/main.min.78f8f17bab244b9ee62ad16480c9584d5fc2db06ae20681d1ca225cefd80767c.css rel=stylesheet><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous><meta property="og:title" content="用python实现逻辑回归"><meta property="og:description" content="机器学习课程的一个实验，整理出来共享。 原理很简单，优化方法是用的梯度下降。后面有测试结果。 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25"><meta property="og:type" content="article"><meta property="og:url" content="http://chuxiuhong.com/post/python-logistic/"><meta property="article:published_time" content="2016-11-02T13:04:20+08:00"><meta property="article:modified_time" content="2016-11-02T13:04:20+08:00"><meta itemprop=name content="用python实现逻辑回归"><meta itemprop=description content="机器学习课程的一个实验，整理出来共享。 原理很简单，优化方法是用的梯度下降。后面有测试结果。 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25"><meta itemprop=datePublished content="2016-11-02T13:04:20+08:00"><meta itemprop=dateModified content="2016-11-02T13:04:20+08:00"><meta itemprop=wordCount content="616"><meta itemprop=keywords content><meta name=twitter:card content="summary"><meta name=twitter:title content="用python实现逻辑回归"><meta name=twitter:description content="机器学习课程的一个实验，整理出来共享。 原理很简单，优化方法是用的梯度下降。后面有测试结果。 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25"><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script><script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]--></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=/ class=logo>唯心不易</a></div><div class=mobile-navbar-icon><span></span><span></span><span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=/><li class=mobile-menu-item>主页</li></a><a href=/post/><li class=mobile-menu-item>归档</li></a><a href=/tags/><li class=mobile-menu-item>标签</li></a><a href=/categories/><li class=mobile-menu-item>分类</li></a><a href=/about/><li class=mobile-menu-item>关于我</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=/ class=logo>唯心不易</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=/>主页</a></li><li class=menu-item><a class=menu-item-link href=/post/>归档</a></li><li class=menu-item><a class=menu-item-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-item-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-item-link href=/about/>关于我</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>用python实现逻辑回归</h1><div class=post-meta><span class=post-time>2016-11-02</span></div></header><div class=post-toc id=post-toc><h2 class=post-toc-title>文章目录</h2><div class="post-toc-content always-active"><nav id=TableOfContents></nav></div></div><div class=post-content><hr><p>机器学习课程的一个实验，整理出来共享。
+原理很简单，优化方法是用的梯度下降。后面有测试结果。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>  1
+</span><span class=lnt>  2
+</span><span class=lnt>  3
+</span><span class=lnt>  4
+</span><span class=lnt>  5
+</span><span class=lnt>  6
+</span><span class=lnt>  7
+</span><span class=lnt>  8
+</span><span class=lnt>  9
+</span><span class=lnt> 10
+</span><span class=lnt> 11
+</span><span class=lnt> 12
+</span><span class=lnt> 13
+</span><span class=lnt> 14
+</span><span class=lnt> 15
+</span><span class=lnt> 16
+</span><span class=lnt> 17
+</span><span class=lnt> 18
+</span><span class=lnt> 19
+</span><span class=lnt> 20
+</span><span class=lnt> 21
+</span><span class=lnt> 22
+</span><span class=lnt> 23
+</span><span class=lnt> 24
+</span><span class=lnt> 25
+</span><span class=lnt> 26
+</span><span class=lnt> 27
+</span><span class=lnt> 28
+</span><span class=lnt> 29
+</span><span class=lnt> 30
+</span><span class=lnt> 31
+</span><span class=lnt> 32
+</span><span class=lnt> 33
+</span><span class=lnt> 34
+</span><span class=lnt> 35
+</span><span class=lnt> 36
+</span><span class=lnt> 37
+</span><span class=lnt> 38
+</span><span class=lnt> 39
+</span><span class=lnt> 40
+</span><span class=lnt> 41
+</span><span class=lnt> 42
+</span><span class=lnt> 43
+</span><span class=lnt> 44
+</span><span class=lnt> 45
+</span><span class=lnt> 46
+</span><span class=lnt> 47
+</span><span class=lnt> 48
+</span><span class=lnt> 49
+</span><span class=lnt> 50
+</span><span class=lnt> 51
+</span><span class=lnt> 52
+</span><span class=lnt> 53
+</span><span class=lnt> 54
+</span><span class=lnt> 55
+</span><span class=lnt> 56
+</span><span class=lnt> 57
+</span><span class=lnt> 58
+</span><span class=lnt> 59
+</span><span class=lnt> 60
+</span><span class=lnt> 61
+</span><span class=lnt> 62
+</span><span class=lnt> 63
+</span><span class=lnt> 64
+</span><span class=lnt> 65
+</span><span class=lnt> 66
+</span><span class=lnt> 67
+</span><span class=lnt> 68
+</span><span class=lnt> 69
+</span><span class=lnt> 70
+</span><span class=lnt> 71
+</span><span class=lnt> 72
+</span><span class=lnt> 73
+</span><span class=lnt> 74
+</span><span class=lnt> 75
+</span><span class=lnt> 76
+</span><span class=lnt> 77
+</span><span class=lnt> 78
+</span><span class=lnt> 79
+</span><span class=lnt> 80
+</span><span class=lnt> 81
+</span><span class=lnt> 82
+</span><span class=lnt> 83
+</span><span class=lnt> 84
+</span><span class=lnt> 85
+</span><span class=lnt> 86
+</span><span class=lnt> 87
+</span><span class=lnt> 88
+</span><span class=lnt> 89
+</span><span class=lnt> 90
+</span><span class=lnt> 91
+</span><span class=lnt> 92
+</span><span class=lnt> 93
+</span><span class=lnt> 94
+</span><span class=lnt> 95
+</span><span class=lnt> 96
+</span><span class=lnt> 97
+</span><span class=lnt> 98
+</span><span class=lnt> 99
+</span><span class=lnt>100
+</span><span class=lnt>101
+</span><span class=lnt>102
+</span><span class=lnt>103
+</span><span class=lnt>104
+</span><span class=lnt>105
+</span><span class=lnt>106
+</span><span class=lnt>107
+</span><span class=lnt>108
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-python data-lang=python><span class=c1># coding=utf-8</span>
+<span class=kn>from</span> <span class=nn>math</span> <span class=kn>import</span> <span class=n>exp</span>
+
+<span class=kn>import</span> <span class=nn>matplotlib.pyplot</span> <span class=kn>as</span> <span class=nn>plt</span>
+<span class=kn>import</span> <span class=nn>numpy</span> <span class=kn>as</span> <span class=nn>np</span>
+<span class=kn>from</span> <span class=nn>sklearn.datasets.samples_generator</span> <span class=kn>import</span> <span class=n>make_blobs</span>
+
+
+<span class=k>def</span> <span class=nf>sigmoid</span><span class=p>(</span><span class=n>num</span><span class=p>):</span>
+    <span class=s1>&#39;&#39;&#39;
+</span><span class=s1>
+</span><span class=s1>    :param num: 待计算的x
+</span><span class=s1>    :return: sigmoid之后的数值
+</span><span class=s1>    &#39;&#39;&#39;</span>
+    <span class=k>if</span> <span class=nb>type</span><span class=p>(</span><span class=n>num</span><span class=p>)</span> <span class=o>==</span> <span class=nb>int</span> <span class=ow>or</span> <span class=nb>type</span><span class=p>(</span><span class=n>num</span><span class=p>)</span> <span class=o>==</span> <span class=nb>float</span><span class=p>:</span>
+        <span class=k>return</span> <span class=mf>1.0</span> <span class=o>/</span> <span class=p>(</span><span class=mi>1</span> <span class=o>+</span> <span class=n>exp</span><span class=p>(</span><span class=o>-</span><span class=mi>1</span> <span class=o>*</span> <span class=n>num</span><span class=p>))</span>
+    <span class=k>else</span><span class=p>:</span>
+        <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>,</span> <span class=s1>&#39;only int or float data can compute sigmoid&#39;</span>
+
+
+<span class=k>class</span> <span class=nc>logistic</span><span class=p>():</span>
+    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>x</span><span class=p>,</span> <span class=n>y</span><span class=p>):</span> 
+        <span class=k>if</span> <span class=nb>type</span><span class=p>(</span><span class=n>x</span><span class=p>)</span> <span class=o>==</span> <span class=nb>type</span><span class=p>(</span><span class=n>y</span><span class=p>)</span> <span class=o>==</span> <span class=nb>list</span><span class=p>:</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>x</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>array</span><span class=p>(</span><span class=n>x</span><span class=p>)</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>y</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>array</span><span class=p>(</span><span class=n>y</span><span class=p>)</span>
+        <span class=k>elif</span> <span class=nb>type</span><span class=p>(</span><span class=n>x</span><span class=p>)</span> <span class=o>==</span> <span class=nb>type</span><span class=p>(</span><span class=n>y</span><span class=p>)</span> <span class=o>==</span> <span class=n>np</span><span class=o>.</span><span class=n>ndarray</span><span class=p>:</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>x</span> <span class=o>=</span> <span class=n>x</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>y</span> <span class=o>=</span> <span class=n>y</span>
+        <span class=k>else</span><span class=p>:</span>
+            <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>,</span> <span class=s1>&#39;input data error&#39;</span>
+
+    <span class=k>def</span> <span class=nf>sigmoid</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>x</span><span class=p>):</span>
+        <span class=s1>&#39;&#39;&#39;
+</span><span class=s1>
+</span><span class=s1>        :param x: 输入向量
+</span><span class=s1>        :return: 对输入向量整体进行simgoid计算后的向量结果
+</span><span class=s1>        &#39;&#39;&#39;</span>
+        <span class=n>s</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>frompyfunc</span><span class=p>(</span><span class=k>lambda</span> <span class=n>x</span><span class=p>:</span> <span class=n>sigmoid</span><span class=p>(</span><span class=n>x</span><span class=p>),</span> <span class=mi>1</span><span class=p>,</span> <span class=mi>1</span><span class=p>)</span>
+        <span class=k>return</span> <span class=n>s</span><span class=p>(</span><span class=n>x</span><span class=p>)</span>
+
+    <span class=k>def</span> <span class=nf>train_with_punish</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>alpha</span><span class=p>,</span> <span class=n>errors</span><span class=p>,</span> <span class=n>punish</span><span class=o>=</span><span class=mf>0.0001</span><span class=p>):</span>
+        <span class=s1>&#39;&#39;&#39;
+</span><span class=s1>
+</span><span class=s1>        :param alpha: alpha为学习速率
+</span><span class=s1>        :param errors: 误差小于多少时停止迭代的阈值
+</span><span class=s1>        :param punish: 惩罚系数
+</span><span class=s1>        :param times: 最大迭代次数
+</span><span class=s1>        :return:
+</span><span class=s1>        &#39;&#39;&#39;</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>punish</span> <span class=o>=</span> <span class=n>punish</span>
+        <span class=n>dimension</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>x</span><span class=o>.</span><span class=n>shape</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>theta</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>random</span><span class=o>.</span><span class=n>random</span><span class=p>(</span><span class=n>dimension</span><span class=p>)</span>
+        <span class=n>compute_error</span> <span class=o>=</span> <span class=mi>100000000</span>
+        <span class=n>times</span> <span class=o>=</span> <span class=mi>0</span>
+        <span class=k>while</span> <span class=n>compute_error</span> <span class=o>&gt;</span> <span class=n>errors</span><span class=p>:</span>
+            <span class=n>res</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>dot</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>x</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>theta</span><span class=p>)</span>
+            <span class=n>delta</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>sigmoid</span><span class=p>(</span><span class=n>res</span><span class=p>)</span> <span class=o>-</span> <span class=bp>self</span><span class=o>.</span><span class=n>y</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>theta</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>theta</span> <span class=o>-</span> <span class=n>alpha</span> <span class=o>*</span> <span class=n>np</span><span class=o>.</span><span class=n>dot</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>x</span><span class=o>.</span><span class=n>T</span><span class=p>,</span> <span class=n>delta</span><span class=p>)</span> <span class=o>-</span> <span class=n>punish</span> <span class=o>*</span> <span class=bp>self</span><span class=o>.</span><span class=n>theta</span>  <span class=c1># 带惩罚的梯度下降方法</span>
+            <span class=n>compute_error</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>sum</span><span class=p>(</span><span class=n>delta</span><span class=p>)</span>
+            <span class=n>times</span> <span class=o>+=</span> <span class=mi>1</span>
+
+    <span class=k>def</span> <span class=nf>predict</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>x</span><span class=p>):</span>
+        <span class=s1>&#39;&#39;&#39;
+</span><span class=s1>
+</span><span class=s1>        :param x: 给入新的未标注的向量
+</span><span class=s1>        :return: 按照计算出的参数返回判定的类别
+</span><span class=s1>        &#39;&#39;&#39;</span>
+        <span class=n>x</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>array</span><span class=p>(</span><span class=n>x</span><span class=p>)</span>
+        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>sigmoid</span><span class=p>(</span><span class=n>np</span><span class=o>.</span><span class=n>dot</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>theta</span><span class=p>))</span> <span class=o>&gt;</span> <span class=mf>0.5</span><span class=p>:</span>
+            <span class=k>return</span> <span class=mi>1</span>
+        <span class=k>else</span><span class=p>:</span>
+            <span class=k>return</span> <span class=mi>0</span>
+
+
+<span class=k>def</span> <span class=nf>test1</span><span class=p>():</span>
+    <span class=s1>&#39;&#39;&#39;
+</span><span class=s1>    用来进行测试和画图，展现效果
+</span><span class=s1>    :return:
+</span><span class=s1>    &#39;&#39;&#39;</span>
+    <span class=n>x</span><span class=p>,</span> <span class=n>y</span> <span class=o>=</span> <span class=n>make_blobs</span><span class=p>(</span><span class=n>n_samples</span><span class=o>=</span><span class=mi>200</span><span class=p>,</span> <span class=n>centers</span><span class=o>=</span><span class=mi>2</span><span class=p>,</span> <span class=n>n_features</span><span class=o>=</span><span class=mi>2</span><span class=p>,</span> <span class=n>random_state</span><span class=o>=</span><span class=mi>0</span><span class=p>,</span> <span class=n>center_box</span><span class=o>=</span><span class=p>(</span><span class=mi>10</span><span class=p>,</span> <span class=mi>20</span><span class=p>))</span>
+    <span class=n>x1</span> <span class=o>=</span> <span class=p>[]</span>
+    <span class=n>y1</span> <span class=o>=</span> <span class=p>[]</span>
+    <span class=n>x2</span> <span class=o>=</span> <span class=p>[]</span>
+    <span class=n>y2</span> <span class=o>=</span> <span class=p>[]</span>
+    <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=nb>len</span><span class=p>(</span><span class=n>y</span><span class=p>)):</span>
+        <span class=k>if</span> <span class=n>y</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>==</span> <span class=mi>0</span><span class=p>:</span>
+            <span class=n>x1</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>x</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=mi>0</span><span class=p>])</span>
+            <span class=n>y1</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>x</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=mi>1</span><span class=p>])</span>
+        <span class=k>elif</span> <span class=n>y</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>==</span> <span class=mi>1</span><span class=p>:</span>
+            <span class=n>x2</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>x</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=mi>0</span><span class=p>])</span>
+            <span class=n>y2</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>x</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=mi>1</span><span class=p>])</span>
+    <span class=c1># 以上均为处理数据，生成出两类数据</span>
+    <span class=n>p</span> <span class=o>=</span> <span class=n>logistic</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>y</span><span class=p>)</span>
+    <span class=n>p</span><span class=o>.</span><span class=n>train_with_punish</span><span class=p>(</span><span class=n>alpha</span><span class=o>=</span><span class=mf>0.00001</span><span class=p>,</span> <span class=n>errors</span><span class=o>=</span><span class=mf>0.005</span><span class=p>,</span> <span class=n>punish</span><span class=o>=</span><span class=mf>0.01</span><span class=p>)</span>  <span class=c1># 步长是0.00001，最大允许误差是0.005，惩罚系数是0.01</span>
+    <span class=n>x_test</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>arange</span><span class=p>(</span><span class=mi>10</span><span class=p>,</span> <span class=mi>20</span><span class=p>,</span> <span class=mf>0.01</span><span class=p>)</span>
+    <span class=n>y_test</span> <span class=o>=</span> <span class=p>(</span><span class=o>-</span><span class=mi>1</span> <span class=o>*</span> <span class=n>p</span><span class=o>.</span><span class=n>theta</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span> <span class=o>/</span> <span class=n>p</span><span class=o>.</span><span class=n>theta</span><span class=p>[</span><span class=mi>1</span><span class=p>])</span> <span class=o>*</span> <span class=n>x_test</span>
+    <span class=n>plt</span><span class=o>.</span><span class=n>plot</span><span class=p>(</span><span class=n>x_test</span><span class=p>,</span> <span class=n>y_test</span><span class=p>,</span> <span class=n>c</span><span class=o>=</span><span class=s1>&#39;g&#39;</span><span class=p>,</span> <span class=n>label</span><span class=o>=</span><span class=s1>&#39;logistic_line&#39;</span><span class=p>)</span>
+    <span class=n>plt</span><span class=o>.</span><span class=n>scatter</span><span class=p>(</span><span class=n>x1</span><span class=p>,</span> <span class=n>y1</span><span class=p>,</span> <span class=n>c</span><span class=o>=</span><span class=s1>&#39;r&#39;</span><span class=p>,</span> <span class=n>label</span><span class=o>=</span><span class=s1>&#39;positive&#39;</span><span class=p>)</span>
+    <span class=n>plt</span><span class=o>.</span><span class=n>scatter</span><span class=p>(</span><span class=n>x2</span><span class=p>,</span> <span class=n>y2</span><span class=p>,</span> <span class=n>c</span><span class=o>=</span><span class=s1>&#39;b&#39;</span><span class=p>,</span> <span class=n>label</span><span class=o>=</span><span class=s1>&#39;negative&#39;</span><span class=p>)</span>
+    <span class=n>plt</span><span class=o>.</span><span class=n>legend</span><span class=p>(</span><span class=n>loc</span><span class=o>=</span><span class=mi>2</span><span class=p>)</span>
+    <span class=n>plt</span><span class=o>.</span><span class=n>title</span><span class=p>(</span><span class=s1>&#39;punish value = &#39;</span> <span class=o>+</span> <span class=n>p</span><span class=o>.</span><span class=n>punish</span><span class=o>.</span><span class=fm>__str__</span><span class=p>())</span>
+    <span class=n>plt</span><span class=o>.</span><span class=n>show</span><span class=p>()</span>
+
+
+<span class=k>if</span> <span class=vm>__name__</span> <span class=o>==</span> <span class=s1>&#39;__main__&#39;</span><span class=p>:</span>
+    <span class=n>test1</span><span class=p>()</span>
+
+
+</code></pre></td></tr></table></div></div><p>运行结果如下图
+<img src=/static/log000.png alt=image1></p></div><div class=post-copyright><p class=copyright-item><span class=item-title>文章作者</span>
+<span class=item-content>chuxiuhong</span></p><p class=copyright-item><span class=item-title>上次更新</span>
+<span class=item-content>2016-11-02</span></p><p class=copyright-item><span class=item-title>许可协议</span>
+<span class=item-content><a rel="license noopener" href=https://creativecommons.org/licenses/by-nc-nd/4.0/ target=_blank>CC BY-NC-ND 4.0</a></span></p></div><footer class=post-footer><nav class=post-nav><a class=prev href=/post/shazam/><i class="iconfont icon-left"></i><span class="prev-text nav-default">听歌识曲--用python实现一个音乐检索器</span>
+<span class="prev-text nav-mobile">上一篇</span></a>
+<a class=next href=/post/kd-tree/><span class="next-text nav-default">利用KD树进行异常检测</span>
+<span class="next-text nav-mobile">下一篇</span>
+<i class="iconfont icon-right"></i></a></nav></footer></article></div><script src=https://utteranc.es/client.js repo=chuxiuhong/blog_comment issue-term=pathname theme=github-light crossorigin=anonymous async></script><noscript>Please enable JavaScript to view the <a href=https://github.com/utterance>comments powered by utterances.</a></noscript></div></main><footer id=footer class=footer><div class=social-links><a href=mailto:chuxiuhong@chuxiuhong.com class="iconfont icon-email" title=email></a><a href=http://github.com/chuxiuhong class="iconfont icon-github" title=github></a><a href=http://chuxiuhong.com/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a></div><div class=copyright><span class=power-by>由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动</span>
+<span class=division>|</span>
+<span class=theme-info>主题 -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a></span>
+<span class=copyright-year>&copy;
+2020 -
+2022
+<span class=heart><i class="iconfont icon-heart"></i></span><span class=author>chuxiuhong</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script><script type=text/javascript src=/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js></script><script type=text/javascript>window.MathJax={tex2jax:{inlineMath:[['$','$'],['\\(','\\)']]},showProcessingMessages:false,messageStyle:'none'};</script><script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin=anonymous></script></body></html>

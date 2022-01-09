@@ -1,0 +1,211 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>不到一百行实现一个命令词识别 - 唯心不易</title><meta name=renderer content="webkit"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content="no-transform"><meta http-equiv=cache-control content="no-siteapp"><meta name=theme-color content="#f8f5ec"><meta name=msapplication-navbutton-color content="#f8f5ec"><meta name=apple-mobile-web-app-capable content="yes"><meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec"><meta name=author content="chuxiuhong"><meta name=description content="想要容易理解核心的特征计算的话建议先去看看我之前的听歌识曲的文章，传送门:https://chuxiuhong.com/post/shaza"><meta name=keywords content="Hugo,theme,even"><meta name=generator content="Hugo 0.74.2 with theme even"><link rel=canonical href=http://chuxiuhong.com/post/minglingci/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=manifest href=/manifest.json><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link href=/sass/main.min.78f8f17bab244b9ee62ad16480c9584d5fc2db06ae20681d1ca225cefd80767c.css rel=stylesheet><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous><meta property="og:title" content="不到一百行实现一个命令词识别"><meta property="og:description" content="想要容易理解核心的特征计算的话建议先去看看我之前的听歌识曲的文章，传送门:https://chuxiuhong.com/post/shaza"><meta property="og:type" content="article"><meta property="og:url" content="http://chuxiuhong.com/post/minglingci/"><meta property="article:published_time" content="2016-12-02T09:19:20+08:00"><meta property="article:modified_time" content="2016-12-02T09:19:20+08:00"><meta itemprop=name content="不到一百行实现一个命令词识别"><meta itemprop=description content="想要容易理解核心的特征计算的话建议先去看看我之前的听歌识曲的文章，传送门:https://chuxiuhong.com/post/shaza"><meta itemprop=datePublished content="2016-12-02T09:19:20+08:00"><meta itemprop=dateModified content="2016-12-02T09:19:20+08:00"><meta itemprop=wordCount content="1486"><meta itemprop=keywords content><meta name=twitter:card content="summary"><meta name=twitter:title content="不到一百行实现一个命令词识别"><meta name=twitter:description content="想要容易理解核心的特征计算的话建议先去看看我之前的听歌识曲的文章，传送门:https://chuxiuhong.com/post/shaza"><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script><script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]--></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=/ class=logo>唯心不易</a></div><div class=mobile-navbar-icon><span></span><span></span><span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=/><li class=mobile-menu-item>主页</li></a><a href=/post/><li class=mobile-menu-item>归档</li></a><a href=/tags/><li class=mobile-menu-item>标签</li></a><a href=/categories/><li class=mobile-menu-item>分类</li></a><a href=/about/><li class=mobile-menu-item>关于我</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=/ class=logo>唯心不易</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=/>主页</a></li><li class=menu-item><a class=menu-item-link href=/post/>归档</a></li><li class=menu-item><a class=menu-item-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-item-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-item-link href=/about/>关于我</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>不到一百行实现一个命令词识别</h1><div class=post-meta><span class=post-time>2016-12-02</span></div></header><div class=post-toc id=post-toc><h2 class=post-toc-title>文章目录</h2><div class="post-toc-content always-active"><nav id=TableOfContents><ul><li><a href=#设计思路><strong>设计思路</strong></a></li><li><a href=#特征提取><strong>特征提取</strong></a></li><li><a href=#dtw算法><strong>DTW算法</strong></a></li><li><a href=#源代码和注释><strong>源代码和注释</strong></a></li></ul></nav></div></div><div class=post-content><p>想要容易理解核心的特征计算的话建议先去看看我之前的听歌识曲的文章，传送门:<a href=https://chuxiuhong.com/post/shazam/>https://chuxiuhong.com/post/shazam/</a></p><p>本文主要是实现了一个简单的命令词识别程序，算法核心一是提取音频特征，二是用DTW算法进行匹配。当然，这样的代码肯定不能用于商业化，大家做出来玩玩娱乐一下还是不错的。</p><p>转载请保留本文链接，谢谢。</p><hr><h2 id=设计思路><strong>设计思路</strong></h2><p>就算是个小东西，我们也要先明确思路再做。音频识别，困难不小，其中提取特征的难度在我听歌识曲那篇文章里能看得出来。而语音识别难度更大，因为音乐总是固定的，而人类说话常常是变化的。比如说一个“芝麻开门”，有的人就会说成“芝麻~~开门”，有的人会说成“芝麻开门~~”。而且在录音时说话的时间也不一样，可能很紧迫的一开始录音就说话了，也可能不紧不慢的快要录音结束了才把这四个字说出来。这样难度就大了。</p><p>算法流程：
+<img src=/static/minglingci_001.png alt=image00></p><hr><h2 id=特征提取><strong>特征提取</strong></h2><p>和之前的听歌识曲一样，同样是将一秒钟分成40块，对每一块进行傅里叶变换，然后取模长。只是这不像之前听歌识曲中进一步进行提取峰值，而是直接当做特征值。
+看不懂我在说什么的朋友可以看看下面的源代码，或者看听歌识曲那篇文章。</p><hr><h2 id=dtw算法><strong>DTW算法</strong></h2><p>DTW，Dynamic Time Warping，动态时间归整。算法解决的问题是将不同发音长短和位置进行最适合的匹配。</p><p>算法输入两组音频的特征向量: A:[fp1,fp2,fp3,&mldr;&mldr;,fpM1] B:[fp1,fp2,fp3,fp4,&mldr;..fpM2]
+A组共有M1个特征，B组共有M2个音频。每个特征向量中的元素就是之前我们将每秒切成40块之后FFT求模长的向量。计算每对fp之间的代价采用的是欧氏距离。</p><p>设D(fpa,fpb)为两个特征的距离代价。</p><p>那么我们可以画出下面这样的图</p><p><img src=/static/minglingci_002.png alt=image01></p><p>我们需要从(1,1)点走到(M1,M2)点，这会有很多种走法，而每种走法就是一种两个音频位置匹配的方式。但我们的目标是走的总过程中代价最小，这样可以保证这种对齐方式是使我们得到最接近的对齐方式。</p><p>我们这样走：首先两个坐标轴上的各个点都是可以直接计算累加代价和求出的。然后对于中间的点来说D(i,j) = Min{D(i-1,j)+D(fpi,fpj) , D(i,j-1)+D(fpi,fpj) , D(i-1,j-1) + 2 * D(fpi,fpj)}
+为什么由(i-1,j-1)直接走到(i,j)这个点需要加上两倍的代价呢？因为别人走正方形的两个直角边，它走的是正方形的对角线啊</p><p>按照这个原理选择，一直算到D(M1,M2)，这就是两个音频的距离。</p><p><img src=/static/minglingci_003.png alt=image01></p><p><img src=/static/minglingci_004.png alt=image01></p><p><img src=/static/minglingci_005.png alt=image01></p><hr><h2 id=源代码和注释><strong>源代码和注释</strong></h2><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span><span class=lnt>73
+</span><span class=lnt>74
+</span><span class=lnt>75
+</span><span class=lnt>76
+</span><span class=lnt>77
+</span><span class=lnt>78
+</span><span class=lnt>79
+</span><span class=lnt>80
+</span><span class=lnt>81
+</span><span class=lnt>82
+</span><span class=lnt>83
+</span><span class=lnt>84
+</span><span class=lnt>85
+</span><span class=lnt>86
+</span><span class=lnt>87
+</span><span class=lnt>88
+</span><span class=lnt>89
+</span><span class=lnt>90
+</span><span class=lnt>91
+</span><span class=lnt>92
+</span><span class=lnt>93
+</span><span class=lnt>94
+</span><span class=lnt>95
+</span><span class=lnt>96
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-python data-lang=python><span class=c1># coding=utf8</span>
+<span class=kn>import</span> <span class=nn>os</span>
+<span class=kn>import</span> <span class=nn>wave</span>
+<span class=kn>import</span> <span class=nn>dtw</span>
+<span class=kn>import</span> <span class=nn>numpy</span> <span class=kn>as</span> <span class=nn>np</span>
+<span class=kn>import</span> <span class=nn>pyaudio</span>
+
+<span class=k>def</span> <span class=nf>compute_distance_vec</span><span class=p>(</span><span class=n>vec1</span><span class=p>,</span> <span class=n>vec2</span><span class=p>):</span>
+    <span class=k>return</span> <span class=n>np</span><span class=o>.</span><span class=n>linalg</span><span class=o>.</span><span class=n>norm</span><span class=p>(</span><span class=n>vec1</span> <span class=o>-</span> <span class=n>vec2</span><span class=p>)</span> <span class=c1>#计算两个特征之间的欧氏距离</span>
+
+<span class=k>class</span> <span class=nc>record</span><span class=p>():</span>
+    <span class=k>def</span> <span class=nf>record</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>CHUNK</span><span class=o>=</span><span class=mi>44100</span><span class=p>,</span> <span class=n>FORMAT</span><span class=o>=</span><span class=n>pyaudio</span><span class=o>.</span><span class=n>paInt16</span><span class=p>,</span> <span class=n>CHANNELS</span><span class=o>=</span><span class=mi>2</span><span class=p>,</span> <span class=n>RATE</span><span class=o>=</span><span class=mi>44100</span><span class=p>,</span> <span class=n>RECORD_SECONDS</span><span class=o>=</span><span class=mi>200</span><span class=p>,</span>
+               <span class=n>WAVE_OUTPUT_FILENAME</span><span class=o>=</span><span class=s2>&#34;record.wav&#34;</span><span class=p>):</span>
+        <span class=c1>#录歌方法</span>
+        <span class=n>p</span> <span class=o>=</span> <span class=n>pyaudio</span><span class=o>.</span><span class=n>PyAudio</span><span class=p>()</span>
+        <span class=n>stream</span> <span class=o>=</span> <span class=n>p</span><span class=o>.</span><span class=n>open</span><span class=p>(</span><span class=n>format</span><span class=o>=</span><span class=n>FORMAT</span><span class=p>,</span>
+                        <span class=n>channels</span><span class=o>=</span><span class=n>CHANNELS</span><span class=p>,</span>
+                        <span class=n>rate</span><span class=o>=</span><span class=n>RATE</span><span class=p>,</span>
+                        <span class=nb>input</span><span class=o>=</span><span class=bp>True</span><span class=p>,</span>
+                        <span class=n>frames_per_buffer</span><span class=o>=</span><span class=n>CHUNK</span><span class=p>)</span>
+        <span class=n>frames</span> <span class=o>=</span> <span class=p>[]</span>
+        <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=nb>int</span><span class=p>(</span><span class=n>RATE</span> <span class=o>/</span> <span class=n>CHUNK</span> <span class=o>*</span> <span class=n>RECORD_SECONDS</span><span class=p>)):</span>
+            <span class=n>data</span> <span class=o>=</span> <span class=n>stream</span><span class=o>.</span><span class=n>read</span><span class=p>(</span><span class=n>CHUNK</span><span class=p>)</span>
+            <span class=n>frames</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
+        <span class=n>stream</span><span class=o>.</span><span class=n>stop_stream</span><span class=p>()</span>
+        <span class=n>stream</span><span class=o>.</span><span class=n>close</span><span class=p>()</span>
+        <span class=n>p</span><span class=o>.</span><span class=n>terminate</span><span class=p>()</span>
+        <span class=n>wf</span> <span class=o>=</span> <span class=n>wave</span><span class=o>.</span><span class=n>open</span><span class=p>(</span><span class=n>WAVE_OUTPUT_FILENAME</span><span class=p>,</span> <span class=s1>&#39;wb&#39;</span><span class=p>)</span>
+        <span class=n>wf</span><span class=o>.</span><span class=n>setnchannels</span><span class=p>(</span><span class=n>CHANNELS</span><span class=p>)</span>
+        <span class=n>wf</span><span class=o>.</span><span class=n>setsampwidth</span><span class=p>(</span><span class=n>p</span><span class=o>.</span><span class=n>get_sample_size</span><span class=p>(</span><span class=n>FORMAT</span><span class=p>))</span>
+        <span class=n>wf</span><span class=o>.</span><span class=n>setframerate</span><span class=p>(</span><span class=n>RATE</span><span class=p>)</span>
+        <span class=n>wf</span><span class=o>.</span><span class=n>writeframes</span><span class=p>(</span><span class=s1>&#39;&#39;</span><span class=o>.</span><span class=n>join</span><span class=p>(</span><span class=n>frames</span><span class=p>))</span>
+        <span class=n>wf</span><span class=o>.</span><span class=n>close</span><span class=p>()</span>
+
+<span class=k>class</span> <span class=nc>voice</span><span class=p>():</span>
+    <span class=k>def</span> <span class=nf>loaddata</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>filepath</span><span class=p>):</span>
+        <span class=k>try</span><span class=p>:</span>
+            <span class=n>f</span> <span class=o>=</span> <span class=n>wave</span><span class=o>.</span><span class=n>open</span><span class=p>(</span><span class=n>filepath</span><span class=p>,</span> <span class=s1>&#39;rb&#39;</span><span class=p>)</span>
+            <span class=n>params</span> <span class=o>=</span> <span class=n>f</span><span class=o>.</span><span class=n>getparams</span><span class=p>()</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>nchannels</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>sampwidth</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>framerate</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>nframes</span> <span class=o>=</span> <span class=n>params</span><span class=p>[:</span><span class=mi>4</span><span class=p>]</span>
+            <span class=n>str_data</span> <span class=o>=</span> <span class=n>f</span><span class=o>.</span><span class=n>readframes</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>nframes</span><span class=p>)</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>wave_data</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>fromstring</span><span class=p>(</span><span class=n>str_data</span><span class=p>,</span> <span class=n>dtype</span><span class=o>=</span><span class=n>np</span><span class=o>.</span><span class=n>short</span><span class=p>)</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>wave_data</span><span class=o>.</span><span class=n>shape</span> <span class=o>=</span> <span class=o>-</span><span class=mi>1</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>sampwidth</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>wave_data</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>wave_data</span><span class=o>.</span><span class=n>T</span> <span class=c1>#存储歌曲原始数组</span>
+            <span class=n>f</span><span class=o>.</span><span class=n>close</span><span class=p>()</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>name</span> <span class=o>=</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>basename</span><span class=p>(</span><span class=n>filepath</span><span class=p>)</span>  <span class=c1># 记录下文件名</span>
+            <span class=k>return</span> <span class=bp>True</span>
+        <span class=k>except</span><span class=p>:</span>
+            <span class=k>raise</span> <span class=ne>IOError</span><span class=p>,</span> <span class=s1>&#39;File Error&#39;</span>
+
+    <span class=k>def</span> <span class=nf>fft</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>frames</span><span class=o>=</span><span class=mi>40</span><span class=p>):</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>fft_blocks</span> <span class=o>=</span> <span class=p>[]</span> <span class=c1>#将音频每秒分成40块，再对每块做傅里叶变换</span>
+        <span class=n>blocks_size</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>framerate</span> <span class=o>/</span> <span class=n>frames</span>
+        <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>xrange</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=nb>len</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>wave_data</span><span class=p>[</span><span class=mi>0</span><span class=p>])</span> <span class=o>-</span> <span class=n>blocks_size</span><span class=p>,</span> <span class=n>blocks_size</span><span class=p>):</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>fft_blocks</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>np</span><span class=o>.</span><span class=n>abs</span><span class=p>(</span><span class=n>np</span><span class=o>.</span><span class=n>fft</span><span class=o>.</span><span class=n>fft</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>wave_data</span><span class=p>[</span><span class=mi>0</span><span class=p>][</span><span class=n>i</span><span class=p>:</span><span class=n>i</span> <span class=o>+</span> <span class=n>blocks_size</span><span class=p>])))</span>
+    <span class=nd>@staticmethod</span>
+    <span class=k>def</span> <span class=nf>play</span><span class=p>(</span><span class=n>filepath</span><span class=p>):</span>
+        <span class=n>chunk</span> <span class=o>=</span> <span class=mi>1024</span>
+        <span class=n>wf</span> <span class=o>=</span> <span class=n>wave</span><span class=o>.</span><span class=n>open</span><span class=p>(</span><span class=n>filepath</span><span class=p>,</span> <span class=s1>&#39;rb&#39;</span><span class=p>)</span>
+        <span class=n>p</span> <span class=o>=</span> <span class=n>pyaudio</span><span class=o>.</span><span class=n>PyAudio</span><span class=p>()</span>
+        <span class=c1># 播放音乐方法</span>
+        <span class=n>stream</span> <span class=o>=</span> <span class=n>p</span><span class=o>.</span><span class=n>open</span><span class=p>(</span><span class=n>format</span><span class=o>=</span><span class=n>p</span><span class=o>.</span><span class=n>get_format_from_width</span><span class=p>(</span><span class=n>wf</span><span class=o>.</span><span class=n>getsampwidth</span><span class=p>()),</span>
+                        <span class=n>channels</span><span class=o>=</span><span class=n>wf</span><span class=o>.</span><span class=n>getnchannels</span><span class=p>(),</span>
+                        <span class=n>rate</span><span class=o>=</span><span class=n>wf</span><span class=o>.</span><span class=n>getframerate</span><span class=p>(),</span>
+                        <span class=n>output</span><span class=o>=</span><span class=bp>True</span><span class=p>)</span>
+        <span class=k>while</span> <span class=bp>True</span><span class=p>:</span>
+            <span class=n>data</span> <span class=o>=</span> <span class=n>wf</span><span class=o>.</span><span class=n>readframes</span><span class=p>(</span><span class=n>chunk</span><span class=p>)</span>
+            <span class=k>if</span> <span class=n>data</span> <span class=o>==</span> <span class=s2>&#34;&#34;</span><span class=p>:</span> <span class=k>break</span>
+            <span class=n>stream</span><span class=o>.</span><span class=n>write</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
+        <span class=n>stream</span><span class=o>.</span><span class=n>close</span><span class=p>()</span>
+        <span class=n>p</span><span class=o>.</span><span class=n>terminate</span><span class=p>()</span>
+<span class=k>if</span> <span class=vm>__name__</span> <span class=o>==</span> <span class=s1>&#39;__main__&#39;</span><span class=p>:</span>
+    <span class=n>r</span> <span class=o>=</span> <span class=n>record</span><span class=p>()</span>
+    <span class=n>r</span><span class=o>.</span><span class=n>record</span><span class=p>(</span><span class=n>RECORD_SECONDS</span><span class=o>=</span><span class=mi>3</span><span class=p>,</span> <span class=n>WAVE_OUTPUT_FILENAME</span><span class=o>=</span><span class=s1>&#39;record.wav&#39;</span><span class=p>)</span>
+    <span class=n>v</span> <span class=o>=</span> <span class=n>voice</span><span class=p>()</span>
+    <span class=n>v</span><span class=o>.</span><span class=n>loaddata</span><span class=p>(</span><span class=s1>&#39;record.wav&#39;</span><span class=p>)</span>
+    <span class=n>v</span><span class=o>.</span><span class=n>fft</span><span class=p>()</span>
+    <span class=n>file_list</span> <span class=o>=</span> <span class=n>os</span><span class=o>.</span><span class=n>listdir</span><span class=p>(</span><span class=n>os</span><span class=o>.</span><span class=n>getcwd</span><span class=p>())</span>
+    <span class=n>res</span> <span class=o>=</span> <span class=p>[]</span>
+    <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=n>file_list</span><span class=p>:</span>
+        <span class=k>if</span> <span class=n>i</span><span class=o>.</span><span class=n>split</span><span class=p>(</span><span class=s1>&#39;.&#39;</span><span class=p>)[</span><span class=mi>1</span><span class=p>]</span> <span class=o>==</span> <span class=s1>&#39;wav&#39;</span> <span class=ow>and</span> <span class=n>i</span><span class=o>.</span><span class=n>split</span><span class=p>(</span><span class=s1>&#39;.&#39;</span><span class=p>)[</span><span class=mi>0</span><span class=p>]</span> <span class=o>!=</span> <span class=s1>&#39;record&#39;</span><span class=p>:</span>
+            <span class=n>temp</span> <span class=o>=</span> <span class=n>voice</span><span class=p>()</span>
+            <span class=n>temp</span><span class=o>.</span><span class=n>loaddata</span><span class=p>(</span><span class=n>i</span><span class=p>)</span>
+            <span class=n>temp</span><span class=o>.</span><span class=n>fft</span><span class=p>()</span>
+            <span class=n>res</span><span class=o>.</span><span class=n>append</span><span class=p>((</span><span class=n>dtw</span><span class=o>.</span><span class=n>dtw</span><span class=p>(</span><span class=n>v</span><span class=o>.</span><span class=n>fft_blocks</span><span class=p>,</span> <span class=n>temp</span><span class=o>.</span><span class=n>fft_blocks</span><span class=p>,</span> <span class=n>compute_distance_vec</span><span class=p>)[</span><span class=mi>0</span><span class=p>],</span><span class=n>i</span><span class=p>))</span>
+    <span class=n>res</span><span class=o>.</span><span class=n>sort</span><span class=p>()</span>
+    <span class=k>print</span> <span class=n>res</span>
+    <span class=k>if</span> <span class=n>res</span><span class=p>[</span><span class=mi>0</span><span class=p>][</span><span class=mi>1</span><span class=p>]</span><span class=o>.</span><span class=n>find</span><span class=p>(</span><span class=s1>&#39;open_qq&#39;</span><span class=p>)</span> <span class=o>!=</span> <span class=o>-</span><span class=mi>1</span><span class=p>:</span>
+        <span class=n>os</span><span class=o>.</span><span class=n>system</span><span class=p>(</span><span class=s1>&#39;C:\program\Tencent\QQ\Bin\QQScLauncher.exe&#39;</span><span class=p>)</span> <span class=c1>#我的QQ路径</span>
+    <span class=k>elif</span> <span class=n>res</span><span class=p>[</span><span class=mi>0</span><span class=p>][</span><span class=mi>1</span><span class=p>]</span><span class=o>.</span><span class=n>find</span><span class=p>(</span><span class=s1>&#39;zhimakaimen&#39;</span><span class=p>)</span> <span class=o>!=</span> <span class=o>-</span><span class=mi>1</span><span class=p>:</span>
+        <span class=n>os</span><span class=o>.</span><span class=n>system</span><span class=p>(</span><span class=s1>&#39;chrome.exe&#39;</span><span class=p>)</span><span class=c1>#浏览器的路径，之前已经被添加到了Path中了</span>
+    <span class=k>elif</span> <span class=n>res</span><span class=p>[</span><span class=mi>0</span><span class=p>][</span><span class=mi>1</span><span class=p>]</span><span class=o>.</span><span class=n>find</span><span class=p>(</span><span class=s1>&#39;play_music&#39;</span><span class=p>)</span> <span class=o>!=</span> <span class=o>-</span><span class=mi>1</span><span class=p>:</span>
+        <span class=n>voice</span><span class=o>.</span><span class=n>play</span><span class=p>(</span><span class=s1>&#39;C:\data\music</span><span class=se>\\</span><span class=s1>audio</span><span class=se>\\</span><span class=s1>audio</span><span class=se>\\</span><span class=s1> (9).wav&#39;</span><span class=p>)</span> <span class=c1>#播放一段音乐</span>
+    <span class=c1># r = record()</span>
+    <span class=c1># r.record(RECORD_SECONDS=3,WAVE_OUTPUT_FILENAME=&#39;zhimakaimen_09.wav&#39;)</span>
+
+</code></pre></td></tr></table></div></div><p>事先可以先用这里的record方法录制几段命令词，尝试用不同语气说，不同节奏说，这样可以提高准确度。然后设计好文件名，根据匹配到的最接近音频的文件名就可以知道是哪种命令，进而自定义执行不同的任务</p></div><div class=post-copyright><p class=copyright-item><span class=item-title>文章作者</span>
+<span class=item-content>chuxiuhong</span></p><p class=copyright-item><span class=item-title>上次更新</span>
+<span class=item-content>2016-12-02</span></p><p class=copyright-item><span class=item-title>许可协议</span>
+<span class=item-content><a rel="license noopener" href=https://creativecommons.org/licenses/by-nc-nd/4.0/ target=_blank>CC BY-NC-ND 4.0</a></span></p></div><footer class=post-footer><nav class=post-nav><a class=prev href=/post/%E4%B8%80%E4%BA%9B%E5%AD%A6%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B%E7%9A%84%E4%BD%93%E4%BC%9A/><i class="iconfont icon-left"></i><span class="prev-text nav-default">一些学函数式编程的体会</span>
+<span class="prev-text nav-mobile">上一篇</span></a>
+<a class=next href=/post/banker-algo/><span class="next-text nav-default">银行家算法学习笔记</span>
+<span class="next-text nav-mobile">下一篇</span>
+<i class="iconfont icon-right"></i></a></nav></footer></article></div><script src=https://utteranc.es/client.js repo=chuxiuhong/blog_comment issue-term=pathname theme=github-light crossorigin=anonymous async></script><noscript>Please enable JavaScript to view the <a href=https://github.com/utterance>comments powered by utterances.</a></noscript></div></main><footer id=footer class=footer><div class=social-links><a href=mailto:chuxiuhong@chuxiuhong.com class="iconfont icon-email" title=email></a><a href=http://github.com/chuxiuhong class="iconfont icon-github" title=github></a><a href=http://chuxiuhong.com/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a></div><div class=copyright><span class=power-by>由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动</span>
+<span class=division>|</span>
+<span class=theme-info>主题 -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a></span>
+<span class=copyright-year>&copy;
+2020 -
+2022
+<span class=heart><i class="iconfont icon-heart"></i></span><span class=author>chuxiuhong</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script><script type=text/javascript src=/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js></script><script type=text/javascript>window.MathJax={tex2jax:{inlineMath:[['$','$'],['\\(','\\)']]},showProcessingMessages:false,messageStyle:'none'};</script><script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin=anonymous></script></body></html>
