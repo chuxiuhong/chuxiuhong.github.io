@@ -49,7 +49,9 @@ print matcher1.group(0)#打印出来
 </code></pre></td></tr></table></div></div><p>看到<code>\1</code>了吗？原本那个位置应该是<code>[1-6]</code>，但是我们写的是\1，我们之前说过，转义符<code>\</code>干的活就是把特殊的字符转成一般的字符，把一般的字符转成特殊字符。普普通通的数字1被转移成什么了呢？在这里1表示第一个子表达式，也就是说，它是动态的，是随着前面第一个子表达式的匹配到的东西而变化的。比方说前面的子表达式内是<code>[1-6]</code>，在实际字符串中找到了1，那么后面的\1就是1，如果前面的子表达式在实际字符串中找到了2，那么后面的\1就是2。</p><p>类似的，\2,\3,&mldr;.就代表第二个第三个子表达式。</p><p>所以回溯引用是正则表达式内的一个“动态”的正则表达式，让你根据实际的情况变化进行匹配。</p><p>中级篇就到这里，其实正则表达式还有很多细节还没有写出来，也有很多元字符我没有交代，但掌握了纲要，懂得原理之后剩下的就类似于查表构造这种活了。</p><p>建议看到这的朋友看看《正则表达式必知必会》，初级篇和这篇中有几个例子也是取材于此。</p></div><div class=post-copyright><p class=copyright-item><span class=item-title>文章作者</span>
 <span class=item-content>chuxiuhong</span></p><p class=copyright-item><span class=item-title>上次更新</span>
 <span class=item-content>2016-09-25</span></p><p class=copyright-item><span class=item-title>许可协议</span>
-<span class=item-content><a rel="license noopener" href=https://creativecommons.org/licenses/by-nc-nd/4.0/ target=_blank>CC BY-NC-ND 4.0</a></span></p></div><footer class=post-footer><div class=post-tags><a href=/tags/python/>Python</a>
+<span class=item-content><a rel="license noopener" href=https://creativecommons.org/licenses/by-nc-nd/4.0/ target=_blank>CC BY-NC-ND 4.0</a></span></p></div><div class=post-reward><input type=checkbox name=reward id=reward hidden>
+<label class=reward-button for=reward>赞赏支持</label><div class=qr-code><label class=qr-code-image for=reward><img class=image src=/wechat_qr_code.jpg>
+<span>微信打赏</span></label></div></div><footer class=post-footer><div class=post-tags><a href=/tags/python/>Python</a>
 <a href=/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/>正则表达式</a></div><nav class=post-nav><a class=prev href=/post/fft-pyqt4/><i class="iconfont icon-left"></i><span class="prev-text nav-default">基于傅里叶变换和PyQt4开发一个简单的频率计数器</span>
 <span class="prev-text nav-mobile">上一篇</span></a>
 <a class=next href=/post/python-re-intro-1/><span class="next-text nav-default">Python 正则表达式入门（初级篇）</span>
