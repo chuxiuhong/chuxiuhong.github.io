@@ -1,262 +1,553 @@
-<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>Manjaro设置V2ray - 唯心不易</title><meta name=renderer content="webkit"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content="no-transform"><meta http-equiv=cache-control content="no-siteapp"><meta name=theme-color content="#f8f5ec"><meta name=msapplication-navbutton-color content="#f8f5ec"><meta name=apple-mobile-web-app-capable content="yes"><meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec"><meta name=author content="chuxiuhong"><meta name=description content="题外话：最近一直想写一个实验，实验平台又必须用到Linux或者MacOS来搞，然而本机Win10本身带着Docker，虚拟机有冲突，WSL又"><meta name=keywords content="Hugo,theme,even"><meta name=generator content="Hugo 0.74.2 with theme even"><link rel=canonical href=http://chuxiuhong.com/post/manjaro-v2ray-setup/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=manifest href=/manifest.json><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link href=/sass/main.min.78f8f17bab244b9ee62ad16480c9584d5fc2db06ae20681d1ca225cefd80767c.css rel=stylesheet><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous><meta property="og:title" content="Manjaro设置V2ray"><meta property="og:description" content="题外话：最近一直想写一个实验，实验平台又必须用到Linux或者MacOS来搞，然而本机Win10本身带着Docker，虚拟机有冲突，WSL又"><meta property="og:type" content="article"><meta property="og:url" content="http://chuxiuhong.com/post/manjaro-v2ray-setup/"><meta property="article:published_time" content="2021-05-05T20:46:52+08:00"><meta property="article:modified_time" content="2021-05-05T20:46:52+08:00"><meta itemprop=name content="Manjaro设置V2ray"><meta itemprop=description content="题外话：最近一直想写一个实验，实验平台又必须用到Linux或者MacOS来搞，然而本机Win10本身带着Docker，虚拟机有冲突，WSL又"><meta itemprop=datePublished content="2021-05-05T20:46:52+08:00"><meta itemprop=dateModified content="2021-05-05T20:46:52+08:00"><meta itemprop=wordCount content="1294"><meta itemprop=keywords content="Manjaro,V2ray,"><meta name=twitter:card content="summary"><meta name=twitter:title content="Manjaro设置V2ray"><meta name=twitter:description content="题外话：最近一直想写一个实验，实验平台又必须用到Linux或者MacOS来搞，然而本机Win10本身带着Docker，虚拟机有冲突，WSL又"><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script><script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]--></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=/ class=logo>唯心不易</a></div><div class=mobile-navbar-icon><span></span><span></span><span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=/><li class=mobile-menu-item>主页</li></a><a href=/post/><li class=mobile-menu-item>归档</li></a><a href=/tags/><li class=mobile-menu-item>标签</li></a><a href=/categories/><li class=mobile-menu-item>分类</li></a><a href=/about/><li class=mobile-menu-item>关于我</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=/ class=logo>唯心不易</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=/>主页</a></li><li class=menu-item><a class=menu-item-link href=/post/>归档</a></li><li class=menu-item><a class=menu-item-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-item-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-item-link href=/about/>关于我</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>Manjaro设置V2ray</h1><div class=post-meta><span class=post-time>2021-05-05</span></div></header><div class=post-toc id=post-toc><h2 class=post-toc-title>文章目录</h2><div class="post-toc-content always-active"><nav id=TableOfContents></nav></div></div><div class=post-content><p>题外话：最近一直想写一个实验，实验平台又必须用到Linux或者MacOS来搞，然而本机Win10本身带着Docker，虚拟机有冲突，WSL又嫌太麻烦了，双系统折腾好几次，始终不是很满意。突发奇想，把之前安了Manjaro的老笔记本掏出来，然后接一条显示线在主显示器上，再在某宝上买一个USB切换器，实现键鼠一键切换两台电脑，随时随地实现Win10和Manjaro的切换，目前看比较满意。然后就是任何新机的第一步：解决科学上网问题。</p><p>首先是我的机器版本：</p><p><img src=/static/manjaro_screenfetch_20210505.png alt=image></p><p>切换pacman源之类的事网上有很多教程，就不赘述了，这里假定你pacman,yay都是做好准备的。</p><p>下载v2ray</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
-</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-bash data-lang=bash>sudo pacman -S v2ray
-</code></pre></td></tr></table></div></div><p>安装之后在<code>/etc/v2ray</code>文件夹下有一个<code>config.json</code>配置文件，用来配置你的v2ray客户端。下面是一个文件配置示例</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>  1
-</span><span class=lnt>  2
-</span><span class=lnt>  3
-</span><span class=lnt>  4
-</span><span class=lnt>  5
-</span><span class=lnt>  6
-</span><span class=lnt>  7
-</span><span class=lnt>  8
-</span><span class=lnt>  9
-</span><span class=lnt> 10
-</span><span class=lnt> 11
-</span><span class=lnt> 12
-</span><span class=lnt> 13
-</span><span class=lnt> 14
-</span><span class=lnt> 15
-</span><span class=lnt> 16
-</span><span class=lnt> 17
-</span><span class=lnt> 18
-</span><span class=lnt> 19
-</span><span class=lnt> 20
-</span><span class=lnt> 21
-</span><span class=lnt> 22
-</span><span class=lnt> 23
-</span><span class=lnt> 24
-</span><span class=lnt> 25
-</span><span class=lnt> 26
-</span><span class=lnt> 27
-</span><span class=lnt> 28
-</span><span class=lnt> 29
-</span><span class=lnt> 30
-</span><span class=lnt> 31
-</span><span class=lnt> 32
-</span><span class=lnt> 33
-</span><span class=lnt> 34
-</span><span class=lnt> 35
-</span><span class=lnt> 36
-</span><span class=lnt> 37
-</span><span class=lnt> 38
-</span><span class=lnt> 39
-</span><span class=lnt> 40
-</span><span class=lnt> 41
-</span><span class=lnt> 42
-</span><span class=lnt> 43
-</span><span class=lnt> 44
-</span><span class=lnt> 45
-</span><span class=lnt> 46
-</span><span class=lnt> 47
-</span><span class=lnt> 48
-</span><span class=lnt> 49
-</span><span class=lnt> 50
-</span><span class=lnt> 51
-</span><span class=lnt> 52
-</span><span class=lnt> 53
-</span><span class=lnt> 54
-</span><span class=lnt> 55
-</span><span class=lnt> 56
-</span><span class=lnt> 57
-</span><span class=lnt> 58
-</span><span class=lnt> 59
-</span><span class=lnt> 60
-</span><span class=lnt> 61
-</span><span class=lnt> 62
-</span><span class=lnt> 63
-</span><span class=lnt> 64
-</span><span class=lnt> 65
-</span><span class=lnt> 66
-</span><span class=lnt> 67
-</span><span class=lnt> 68
-</span><span class=lnt> 69
-</span><span class=lnt> 70
-</span><span class=lnt> 71
-</span><span class=lnt> 72
-</span><span class=lnt> 73
-</span><span class=lnt> 74
-</span><span class=lnt> 75
-</span><span class=lnt> 76
-</span><span class=lnt> 77
-</span><span class=lnt> 78
-</span><span class=lnt> 79
-</span><span class=lnt> 80
-</span><span class=lnt> 81
-</span><span class=lnt> 82
-</span><span class=lnt> 83
-</span><span class=lnt> 84
-</span><span class=lnt> 85
-</span><span class=lnt> 86
-</span><span class=lnt> 87
-</span><span class=lnt> 88
-</span><span class=lnt> 89
-</span><span class=lnt> 90
-</span><span class=lnt> 91
-</span><span class=lnt> 92
-</span><span class=lnt> 93
-</span><span class=lnt> 94
-</span><span class=lnt> 95
-</span><span class=lnt> 96
-</span><span class=lnt> 97
-</span><span class=lnt> 98
-</span><span class=lnt> 99
-</span><span class=lnt>100
-</span><span class=lnt>101
-</span><span class=lnt>102
-</span><span class=lnt>103
-</span><span class=lnt>104
-</span><span class=lnt>105
-</span><span class=lnt>106
-</span><span class=lnt>107
-</span><span class=lnt>108
-</span><span class=lnt>109
-</span><span class=lnt>110
-</span><span class=lnt>111
-</span><span class=lnt>112
-</span><span class=lnt>113
-</span><span class=lnt>114
-</span><span class=lnt>115
-</span><span class=lnt>116
-</span><span class=lnt>117
-</span><span class=lnt>118
-</span><span class=lnt>119
-</span><span class=lnt>120
-</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-json data-lang=json><span class=p>{</span>
-  <span class=nt>&#34;policy&#34;</span><span class=p>:</span> <span class=kc>null</span><span class=p>,</span>
-  <span class=nt>&#34;log&#34;</span><span class=p>:</span> <span class=p>{</span>
-    <span class=nt>&#34;access&#34;</span><span class=p>:</span> <span class=s2>&#34;/etc/v2ray/access.log&#34;</span><span class=p>,</span>
-    <span class=nt>&#34;error&#34;</span><span class=p>:</span> <span class=s2>&#34;/etc/v2ray/error.log&#34;</span><span class=p>,</span>
-    <span class=nt>&#34;loglevel&#34;</span><span class=p>:</span> <span class=s2>&#34;warning&#34;</span>
-  <span class=p>},</span>
-  <span class=nt>&#34;inbounds&#34;</span><span class=p>:</span> <span class=p>[</span>
-    <span class=p>{</span>
-      <span class=nt>&#34;tag&#34;</span><span class=p>:</span> <span class=s2>&#34;proxy&#34;</span><span class=p>,</span>
-      <span class=nt>&#34;port&#34;</span><span class=p>:</span> <span class=mi>10809</span><span class=p>,</span>
-      <span class=nt>&#34;listen&#34;</span><span class=p>:</span> <span class=s2>&#34;0.0.0.0&#34;</span><span class=p>,</span>
-      <span class=nt>&#34;protocol&#34;</span><span class=p>:</span> <span class=s2>&#34;socks&#34;</span><span class=p>,</span>
-      <span class=nt>&#34;sniffing&#34;</span><span class=p>:</span> <span class=p>{</span>
-        <span class=nt>&#34;enabled&#34;</span><span class=p>:</span> <span class=kc>true</span><span class=p>,</span>
-        <span class=nt>&#34;destOverride&#34;</span><span class=p>:</span> <span class=p>[</span>
-          <span class=s2>&#34;http&#34;</span><span class=p>,</span>
-          <span class=s2>&#34;tls&#34;</span>
-        <span class=p>]</span>
-      <span class=p>},</span>
-      <span class=nt>&#34;settings&#34;</span><span class=p>:</span> <span class=p>{</span>
-        <span class=nt>&#34;auth&#34;</span><span class=p>:</span> <span class=s2>&#34;noauth&#34;</span><span class=p>,</span>
-        <span class=nt>&#34;udp&#34;</span><span class=p>:</span> <span class=kc>true</span><span class=p>,</span>
-        <span class=nt>&#34;ip&#34;</span><span class=p>:</span> <span class=kc>null</span><span class=p>,</span>
-        <span class=nt>&#34;address&#34;</span><span class=p>:</span> <span class=kc>null</span><span class=p>,</span>
-        <span class=nt>&#34;clients&#34;</span><span class=p>:</span> <span class=kc>null</span>
-      <span class=p>},</span>
-      <span class=nt>&#34;streamSettings&#34;</span><span class=p>:</span> <span class=kc>null</span>
-    <span class=p>}</span>
-  <span class=p>],</span>
-  <span class=nt>&#34;outbounds&#34;</span><span class=p>:</span> <span class=p>[</span>
-    <span class=p>{</span>
-      <span class=nt>&#34;tag&#34;</span><span class=p>:</span> <span class=s2>&#34;proxy&#34;</span><span class=p>,</span>
-      <span class=nt>&#34;protocol&#34;</span><span class=p>:</span> <span class=s2>&#34;vmess&#34;</span><span class=p>,</span>
-      <span class=nt>&#34;settings&#34;</span><span class=p>:</span> <span class=p>{</span>
-        <span class=nt>&#34;vnext&#34;</span><span class=p>:</span> <span class=p>[</span>
-          <span class=p>{</span>
-            <span class=nt>&#34;address&#34;</span><span class=p>:</span> <span class=s2>&#34;123.123.123.123&#34;</span><span class=p>,</span> <span class=err>//这里写你自己服务器IP</span>
-            <span class=nt>&#34;port&#34;</span><span class=p>:</span> <span class=mi>443</span><span class=p>,</span><span class=err>//这里写你自己服务器端口号</span>
-            <span class=nt>&#34;users&#34;</span><span class=p>:</span> <span class=p>[</span>
-              <span class=p>{</span>
-                <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=s2>&#34;166e8f09-eadb-5ad4-ab18-beb5f9e7ecb8&#34;</span><span class=p>,</span><span class=err>//这里写生成的用户ID</span>
-                <span class=nt>&#34;alterId&#34;</span><span class=p>:</span> <span class=mi>74</span><span class=p>,</span><span class=err>//额外ID</span>
-                <span class=nt>&#34;email&#34;</span><span class=p>:</span> <span class=s2>&#34;t@t.tt&#34;</span><span class=p>,</span><span class=err>//无所谓</span>
-                <span class=nt>&#34;security&#34;</span><span class=p>:</span> <span class=s2>&#34;auto&#34;</span><span class=err>//按照服务器配置写</span>
-              <span class=p>}</span>
-            <span class=p>]</span>
-          <span class=p>}</span>
-        <span class=p>],</span>
-        <span class=nt>&#34;servers&#34;</span><span class=p>:</span> <span class=kc>null</span><span class=p>,</span>
-        <span class=nt>&#34;response&#34;</span><span class=p>:</span> <span class=kc>null</span>
-      <span class=p>},</span>
-      <span class=nt>&#34;streamSettings&#34;</span><span class=p>:</span> <span class=p>{</span>
-        <span class=nt>&#34;network&#34;</span><span class=p>:</span> <span class=s2>&#34;ws&#34;</span><span class=p>,</span> <span class=err>//传输协议类型，和服务器一致</span>
-        <span class=nt>&#34;security&#34;</span><span class=p>:</span> <span class=s2>&#34;tls&#34;</span><span class=p>,</span><span class=err>//底层传输安全，是否启用tls和服务器配置一致</span>
-        <span class=nt>&#34;tlsSettings&#34;</span><span class=p>:</span> <span class=p>{</span>
-          <span class=nt>&#34;allowInsecure&#34;</span><span class=p>:</span> <span class=kc>false</span><span class=p>,</span>
-          <span class=nt>&#34;serverName&#34;</span><span class=p>:</span> <span class=s2>&#34;www.fuckgfw.top&#34;</span><span class=err>//你服务器的域名，顺便说，fuckgfw这种域名国内还注册不了</span>
-        <span class=p>},</span>
-        <span class=nt>&#34;tcpSettings&#34;</span><span class=p>:</span> <span class=kc>null</span><span class=p>,</span>
-        <span class=nt>&#34;kcpSettings&#34;</span><span class=p>:</span> <span class=kc>null</span><span class=p>,</span>
-        <span class=nt>&#34;wsSettings&#34;</span><span class=p>:</span> <span class=p>{</span>
-          <span class=nt>&#34;connectionReuse&#34;</span><span class=p>:</span> <span class=kc>true</span><span class=p>,</span>
-          <span class=nt>&#34;path&#34;</span><span class=p>:</span> <span class=s2>&#34;/fuckfangbinxing&#34;</span><span class=p>,</span><span class=err>//存证书密钥的路径，和服务器设置一致</span>
-          <span class=nt>&#34;headers&#34;</span><span class=p>:</span> <span class=p>{</span>
-            <span class=nt>&#34;Host&#34;</span><span class=p>:</span> <span class=s2>&#34;www.fuckgfw.top&#34;</span>
-          <span class=p>}</span>
-        <span class=p>},</span>
-        <span class=nt>&#34;httpSettings&#34;</span><span class=p>:</span> <span class=kc>null</span><span class=p>,</span>
-        <span class=nt>&#34;quicSettings&#34;</span><span class=p>:</span> <span class=kc>null</span>
-      <span class=p>},</span>
-      <span class=nt>&#34;mux&#34;</span><span class=p>:</span> <span class=p>{</span>
-        <span class=nt>&#34;enabled&#34;</span><span class=p>:</span> <span class=kc>true</span><span class=p>,</span>
-        <span class=nt>&#34;concurrency&#34;</span><span class=p>:</span> <span class=mi>8</span>
-      <span class=p>}</span>
-    <span class=p>},</span>
-    <span class=p>{</span>
-      <span class=nt>&#34;tag&#34;</span><span class=p>:</span> <span class=s2>&#34;direct&#34;</span><span class=p>,</span>
-      <span class=nt>&#34;protocol&#34;</span><span class=p>:</span> <span class=s2>&#34;freedom&#34;</span><span class=p>,</span>
-      <span class=nt>&#34;settings&#34;</span><span class=p>:</span> <span class=p>{</span>
-        <span class=nt>&#34;vnext&#34;</span><span class=p>:</span> <span class=kc>null</span><span class=p>,</span>
-        <span class=nt>&#34;servers&#34;</span><span class=p>:</span> <span class=kc>null</span><span class=p>,</span>
-        <span class=nt>&#34;response&#34;</span><span class=p>:</span> <span class=kc>null</span>
-      <span class=p>},</span>
-      <span class=nt>&#34;streamSettings&#34;</span><span class=p>:</span> <span class=kc>null</span><span class=p>,</span>
-      <span class=nt>&#34;mux&#34;</span><span class=p>:</span> <span class=kc>null</span>
-    <span class=p>},</span>
-    <span class=p>{</span>
-      <span class=nt>&#34;tag&#34;</span><span class=p>:</span> <span class=s2>&#34;block&#34;</span><span class=p>,</span>
-      <span class=nt>&#34;protocol&#34;</span><span class=p>:</span> <span class=s2>&#34;blackhole&#34;</span><span class=p>,</span>
-      <span class=nt>&#34;settings&#34;</span><span class=p>:</span> <span class=p>{</span>
-        <span class=nt>&#34;vnext&#34;</span><span class=p>:</span> <span class=kc>null</span><span class=p>,</span>
-        <span class=nt>&#34;servers&#34;</span><span class=p>:</span> <span class=kc>null</span><span class=p>,</span>
-        <span class=nt>&#34;response&#34;</span><span class=p>:</span> <span class=p>{</span>
-          <span class=nt>&#34;type&#34;</span><span class=p>:</span> <span class=s2>&#34;http&#34;</span>
-        <span class=p>}</span>
-      <span class=p>},</span>
-      <span class=nt>&#34;streamSettings&#34;</span><span class=p>:</span> <span class=kc>null</span><span class=p>,</span>
-      <span class=nt>&#34;mux&#34;</span><span class=p>:</span> <span class=kc>null</span>
-    <span class=p>}</span>
-  <span class=p>],</span>
-  <span class=nt>&#34;stats&#34;</span><span class=p>:</span> <span class=kc>null</span><span class=p>,</span>
-  <span class=nt>&#34;api&#34;</span><span class=p>:</span> <span class=kc>null</span><span class=p>,</span>
-  <span class=nt>&#34;dns&#34;</span><span class=p>:</span> <span class=kc>null</span><span class=p>,</span>
-  <span class=nt>&#34;routing&#34;</span><span class=p>:</span> <span class=p>{</span>
-    <span class=nt>&#34;domainStrategy&#34;</span><span class=p>:</span> <span class=s2>&#34;IPIfNonMatch&#34;</span><span class=p>,</span>
-    <span class=nt>&#34;rules&#34;</span><span class=p>:</span> <span class=p>[</span>
-      <span class=p>{</span>
-        <span class=nt>&#34;type&#34;</span><span class=p>:</span> <span class=s2>&#34;field&#34;</span><span class=p>,</span>
-        <span class=nt>&#34;port&#34;</span><span class=p>:</span> <span class=kc>null</span><span class=p>,</span>
-        <span class=nt>&#34;inboundTag&#34;</span><span class=p>:</span> <span class=p>[</span>
-          <span class=s2>&#34;api&#34;</span>
-        <span class=p>],</span>
-        <span class=nt>&#34;outboundTag&#34;</span><span class=p>:</span> <span class=s2>&#34;api&#34;</span><span class=p>,</span>
-        <span class=nt>&#34;ip&#34;</span><span class=p>:</span> <span class=kc>null</span><span class=p>,</span>
-        <span class=nt>&#34;domain&#34;</span><span class=p>:</span> <span class=kc>null</span>
-      <span class=p>}</span>
-    <span class=p>]</span>
-  <span class=p>}</span>
-<span class=p>}</span>
-</code></pre></td></tr></table></div></div><p>这里还要注意，写日志的地方如果像我这样把日志文件放到<code>/etc/v2ray</code>文件夹下，那v2ray可能会遇到权限问题，最简单的解决方法加权限:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
-</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-bash data-lang=bash>sudo chmod +777 -R /etc/v2ray
-</code></pre></td></tr></table></div></div><p>写好你的文件之后，用<code>v2ray -test</code>可以测试正确性。</p><p>配置好之后，我发现Manjaro貌似脑子不太行的样子，每次在系统设置里设置好代理，保存，然后退出来就变回去了，于是选择在浏览器里设代理。这里注意浏览器里仅设置socks代理就足够了，如果每个都设的话，浏览器连接任何网页都会无法建立安全连接，查日志会报</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
-</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-fallback data-lang=fallback>tcp:127.0.0.1:55250 rejected proxy/socks unkown Socks version:67
-</code></pre></td></tr></table></div></div><p>这一类的报错，这里就是有HTTP或者HTTPS的代理走了v2ray提供的socks代理端口，结果v2ray傻了，表示你没交代我还要干HTTP代理的活。</p><p>设置成下面这样</p><p><img src=/static/firefox_proxy_20210505.png alt=image></p><p>这样就可以成功科学上网了</p><p><img src=/static/firefox_google_20210505.png alt=image></p></div><div class=post-copyright><p class=copyright-item><span class=item-title>文章作者</span>
-<span class=item-content>chuxiuhong</span></p><p class=copyright-item><span class=item-title>上次更新</span>
-<span class=item-content>2021-05-05</span></p><p class=copyright-item><span class=item-title>许可协议</span>
-<span class=item-content><a rel="license noopener" href=https://creativecommons.org/licenses/by-nc-nd/4.0/ target=_blank>CC BY-NC-ND 4.0</a></span></p></div><div class=post-reward><input type=checkbox name=reward id=reward hidden>
-<label class=reward-button for=reward>赞赏支持</label><div class=qr-code><label class=qr-code-image for=reward><img class=image src=/wechat_qr_code.jpg>
-<span>微信打赏</span></label></div></div><footer class=post-footer><div class=post-tags><a href=/tags/manjaro/>Manjaro</a>
-<a href=/tags/v2ray/>V2ray</a></div><nav class=post-nav><a class=next href=/post/rsgeo/><span class="next-text nav-default">发布一个地理计算库rsgeo</span>
-<span class="next-text nav-mobile">下一篇</span>
-<i class="iconfont icon-right"></i></a></nav></footer></article></div><script src=https://utteranc.es/client.js repo=chuxiuhong/blog_comment issue-term=pathname theme=github-light crossorigin=anonymous async></script><noscript>Please enable JavaScript to view the <a href=https://github.com/utterance>comments powered by utterances.</a></noscript></div></main><footer id=footer class=footer><div class=social-links><a href=mailto:chuxiuhong@chuxiuhong.com class="iconfont icon-email" title=email></a><a href=http://github.com/chuxiuhong class="iconfont icon-github" title=github></a><a href=http://chuxiuhong.com/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a></div><div class=copyright><span class=power-by>由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动</span>
-<span class=division>|</span>
-<span class=theme-info>主题 -
-<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a></span>
-<span class=copyright-year>&copy;
-2020 -
-2022
-<span class=heart><i class="iconfont icon-heart"></i></span><span class=author>chuxiuhong</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script><script type=text/javascript src=/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js></script><script type=text/javascript>window.MathJax={tex2jax:{inlineMath:[['$','$'],['\\(','\\)']]},showProcessingMessages:false,messageStyle:'none'};</script><script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin=anonymous></script></body></html>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Manjaro设置V2ray - 唯心不易</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="chuxiuhong" /><meta name="description" content="题外话：最近一直想写一个实验，实验平台又必须用到Linux或者MacOS来搞，然而本机Win10本身带着Docker，虚拟机有冲突，WSL又" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.74.2 with theme even" />
+
+
+<link rel="canonical" href="http://chuxiuhong.com/post/manjaro-v2ray-setup/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.78f8f17bab244b9ee62ad16480c9584d5fc2db06ae20681d1ca225cefd80767c.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Manjaro设置V2ray" />
+<meta property="og:description" content="题外话：最近一直想写一个实验，实验平台又必须用到Linux或者MacOS来搞，然而本机Win10本身带着Docker，虚拟机有冲突，WSL又" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://chuxiuhong.com/post/manjaro-v2ray-setup/" />
+<meta property="article:published_time" content="2021-05-05T20:46:52+08:00" />
+<meta property="article:modified_time" content="2021-05-05T20:46:52+08:00" />
+<meta itemprop="name" content="Manjaro设置V2ray">
+<meta itemprop="description" content="题外话：最近一直想写一个实验，实验平台又必须用到Linux或者MacOS来搞，然而本机Win10本身带着Docker，虚拟机有冲突，WSL又">
+<meta itemprop="datePublished" content="2021-05-05T20:46:52&#43;08:00" />
+<meta itemprop="dateModified" content="2021-05-05T20:46:52&#43;08:00" />
+<meta itemprop="wordCount" content="1294">
+
+
+
+<meta itemprop="keywords" content="Manjaro,V2ray," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Manjaro设置V2ray"/>
+<meta name="twitter:description" content="题外话：最近一直想写一个实验，实验平台又必须用到Linux或者MacOS来搞，然而本机Win10本身带着Docker，虚拟机有冲突，WSL又"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">唯心不易</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">主页</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">归档</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">分类</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于我</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">唯心不易</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">主页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">归档</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">分类</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于我</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Manjaro设置V2ray</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2021-05-05 </span>
+        
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>题外话：最近一直想写一个实验，实验平台又必须用到Linux或者MacOS来搞，然而本机Win10本身带着Docker，虚拟机有冲突，WSL又嫌太麻烦了，双系统折腾好几次，始终不是很满意。突发奇想，把之前安了Manjaro的老笔记本掏出来，然后接一条显示线在主显示器上，再在某宝上买一个USB切换器，实现键鼠一键切换两台电脑，随时随地实现Win10和Manjaro的切换，目前看比较满意。然后就是任何新机的第一步：解决科学上网问题。</p>
+<p>首先是我的机器版本：</p>
+<p><img src="/static/manjaro_screenfetch_20210505.png" alt="image"></p>
+<p>切换pacman源之类的事网上有很多教程，就不赘述了，这里假定你pacman,yay都是做好准备的。</p>
+<p>下载v2ray</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">sudo pacman -S v2ray
+</code></pre></td></tr></table>
+</div>
+</div><p>安装之后在<code>/etc/v2ray</code>文件夹下有一个<code>config.json</code>配置文件，用来配置你的v2ray客户端。下面是一个文件配置示例</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
+  <span class="nt">&#34;policy&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+  <span class="nt">&#34;log&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;access&#34;</span><span class="p">:</span> <span class="s2">&#34;/etc/v2ray/access.log&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;error&#34;</span><span class="p">:</span> <span class="s2">&#34;/etc/v2ray/error.log&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;loglevel&#34;</span><span class="p">:</span> <span class="s2">&#34;warning&#34;</span>
+  <span class="p">},</span>
+  <span class="nt">&#34;inbounds&#34;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="nt">&#34;tag&#34;</span><span class="p">:</span> <span class="s2">&#34;proxy&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;port&#34;</span><span class="p">:</span> <span class="mi">10809</span><span class="p">,</span>
+      <span class="nt">&#34;listen&#34;</span><span class="p">:</span> <span class="s2">&#34;0.0.0.0&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;protocol&#34;</span><span class="p">:</span> <span class="s2">&#34;socks&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;sniffing&#34;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&#34;enabled&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="nt">&#34;destOverride&#34;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="s2">&#34;http&#34;</span><span class="p">,</span>
+          <span class="s2">&#34;tls&#34;</span>
+        <span class="p">]</span>
+      <span class="p">},</span>
+      <span class="nt">&#34;settings&#34;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&#34;auth&#34;</span><span class="p">:</span> <span class="s2">&#34;noauth&#34;</span><span class="p">,</span>
+        <span class="nt">&#34;udp&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="nt">&#34;ip&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&#34;address&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&#34;clients&#34;</span><span class="p">:</span> <span class="kc">null</span>
+      <span class="p">},</span>
+      <span class="nt">&#34;streamSettings&#34;</span><span class="p">:</span> <span class="kc">null</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="nt">&#34;outbounds&#34;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="nt">&#34;tag&#34;</span><span class="p">:</span> <span class="s2">&#34;proxy&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;protocol&#34;</span><span class="p">:</span> <span class="s2">&#34;vmess&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;settings&#34;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&#34;vnext&#34;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="p">{</span>
+            <span class="nt">&#34;address&#34;</span><span class="p">:</span> <span class="s2">&#34;123.123.123.123&#34;</span><span class="p">,</span> <span class="err">//这里写你自己服务器IP</span>
+            <span class="nt">&#34;port&#34;</span><span class="p">:</span> <span class="mi">443</span><span class="p">,</span><span class="err">//这里写你自己服务器端口号</span>
+            <span class="nt">&#34;users&#34;</span><span class="p">:</span> <span class="p">[</span>
+              <span class="p">{</span>
+                <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;166e8f09-eadb-5ad4-ab18-beb5f9e7ecb8&#34;</span><span class="p">,</span><span class="err">//这里写生成的用户ID</span>
+                <span class="nt">&#34;alterId&#34;</span><span class="p">:</span> <span class="mi">74</span><span class="p">,</span><span class="err">//额外ID</span>
+                <span class="nt">&#34;email&#34;</span><span class="p">:</span> <span class="s2">&#34;t@t.tt&#34;</span><span class="p">,</span><span class="err">//无所谓</span>
+                <span class="nt">&#34;security&#34;</span><span class="p">:</span> <span class="s2">&#34;auto&#34;</span><span class="err">//按照服务器配置写</span>
+              <span class="p">}</span>
+            <span class="p">]</span>
+          <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="nt">&#34;servers&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&#34;response&#34;</span><span class="p">:</span> <span class="kc">null</span>
+      <span class="p">},</span>
+      <span class="nt">&#34;streamSettings&#34;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&#34;network&#34;</span><span class="p">:</span> <span class="s2">&#34;ws&#34;</span><span class="p">,</span> <span class="err">//传输协议类型，和服务器一致</span>
+        <span class="nt">&#34;security&#34;</span><span class="p">:</span> <span class="s2">&#34;tls&#34;</span><span class="p">,</span><span class="err">//底层传输安全，是否启用tls和服务器配置一致</span>
+        <span class="nt">&#34;tlsSettings&#34;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&#34;allowInsecure&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+          <span class="nt">&#34;serverName&#34;</span><span class="p">:</span> <span class="s2">&#34;www.fuckgfw.top&#34;</span><span class="err">//你服务器的域名，顺便说，fuckgfw这种域名国内还注册不了</span>
+        <span class="p">},</span>
+        <span class="nt">&#34;tcpSettings&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&#34;kcpSettings&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&#34;wsSettings&#34;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&#34;connectionReuse&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+          <span class="nt">&#34;path&#34;</span><span class="p">:</span> <span class="s2">&#34;/fuckfangbinxing&#34;</span><span class="p">,</span><span class="err">//存证书密钥的路径，和服务器设置一致</span>
+          <span class="nt">&#34;headers&#34;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&#34;Host&#34;</span><span class="p">:</span> <span class="s2">&#34;www.fuckgfw.top&#34;</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="nt">&#34;httpSettings&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&#34;quicSettings&#34;</span><span class="p">:</span> <span class="kc">null</span>
+      <span class="p">},</span>
+      <span class="nt">&#34;mux&#34;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&#34;enabled&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="nt">&#34;concurrency&#34;</span><span class="p">:</span> <span class="mi">8</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="nt">&#34;tag&#34;</span><span class="p">:</span> <span class="s2">&#34;direct&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;protocol&#34;</span><span class="p">:</span> <span class="s2">&#34;freedom&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;settings&#34;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&#34;vnext&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&#34;servers&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&#34;response&#34;</span><span class="p">:</span> <span class="kc">null</span>
+      <span class="p">},</span>
+      <span class="nt">&#34;streamSettings&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+      <span class="nt">&#34;mux&#34;</span><span class="p">:</span> <span class="kc">null</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="nt">&#34;tag&#34;</span><span class="p">:</span> <span class="s2">&#34;block&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;protocol&#34;</span><span class="p">:</span> <span class="s2">&#34;blackhole&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;settings&#34;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&#34;vnext&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&#34;servers&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&#34;response&#34;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;http&#34;</span>
+        <span class="p">}</span>
+      <span class="p">},</span>
+      <span class="nt">&#34;streamSettings&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+      <span class="nt">&#34;mux&#34;</span><span class="p">:</span> <span class="kc">null</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="nt">&#34;stats&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+  <span class="nt">&#34;api&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+  <span class="nt">&#34;dns&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+  <span class="nt">&#34;routing&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;domainStrategy&#34;</span><span class="p">:</span> <span class="s2">&#34;IPIfNonMatch&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;rules&#34;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;field&#34;</span><span class="p">,</span>
+        <span class="nt">&#34;port&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&#34;inboundTag&#34;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="s2">&#34;api&#34;</span>
+        <span class="p">],</span>
+        <span class="nt">&#34;outboundTag&#34;</span><span class="p">:</span> <span class="s2">&#34;api&#34;</span><span class="p">,</span>
+        <span class="nt">&#34;ip&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&#34;domain&#34;</span><span class="p">:</span> <span class="kc">null</span>
+      <span class="p">}</span>
+    <span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>这里还要注意，写日志的地方如果像我这样把日志文件放到<code>/etc/v2ray</code>文件夹下，那v2ray可能会遇到权限问题，最简单的解决方法加权限:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">sudo chmod +777 -R /etc/v2ray
+</code></pre></td></tr></table>
+</div>
+</div><p>写好你的文件之后，用<code>v2ray -test</code>可以测试正确性。</p>
+<p>配置好之后，我发现Manjaro貌似脑子不太行的样子，每次在系统设置里设置好代理，保存，然后退出来就变回去了，于是选择在浏览器里设代理。这里注意浏览器里仅设置socks代理就足够了，如果每个都设的话，浏览器连接任何网页都会无法建立安全连接，查日志会报</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">tcp:127.0.0.1:55250 rejected proxy/socks unkown Socks version:67
+</code></pre></td></tr></table>
+</div>
+</div><p>这一类的报错，这里就是有HTTP或者HTTPS的代理走了v2ray提供的socks代理端口，结果v2ray傻了，表示你没交代我还要干HTTP代理的活。</p>
+<p>设置成下面这样</p>
+<p><img src="/static/firefox_proxy_20210505.png" alt="image"></p>
+<p>这样就可以成功科学上网了</p>
+<p><img src="/static/firefox_google_20210505.png" alt="image"></p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">chuxiuhong</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2021-05-05
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">许可协议</span>
+    <span class="item-content"><a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a></span>
+  </p>
+</div>
+<div class="post-reward">
+  <input type="checkbox" name="reward" id="reward" hidden />
+  <label class="reward-button" for="reward">赞赏支持</label>
+  <div class="qr-code">
+    
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/resources/wechat-qr-code.jpg">
+        <span>微信打赏</span>
+      </label>
+    <label class="qr-code-image" for="reward">
+        <img class="image" src="/resources/zhifubao-qr-code.jpg">
+        <span>支付宝打赏</span>
+      </label>
+  </div>
+</div><footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/manjaro/">Manjaro</a>
+          <a href="/tags/v2ray/">V2ray</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/rsgeo/">
+            <span class="next-text nav-default">发布一个地理计算库rsgeo</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+    <script src="https://utteranc.es/client.js"
+            repo="chuxiuhong/blog_comment"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/utterance">comments powered by utterances.</a></noscript>
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:chuxiuhong@chuxiuhong.com" class="iconfont icon-email" title="email"></a>
+      <a href="http://github.com/chuxiuhong" class="iconfont icon-github" title="github"></a>
+  <a href="http://chuxiuhong.com/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2022
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">chuxiuhong</span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]},
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,1 +1,24 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Manjaro on 唯心不易</title><link>http://chuxiuhong.com/tags/manjaro/</link><description>Recent content in Manjaro on 唯心不易</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Wed, 05 May 2021 20:46:52 +0800</lastBuildDate><atom:link href="http://chuxiuhong.com/tags/manjaro/index.xml" rel="self" type="application/rss+xml"/><item><title>Manjaro设置V2ray</title><link>http://chuxiuhong.com/post/manjaro-v2ray-setup/</link><pubDate>Wed, 05 May 2021 20:46:52 +0800</pubDate><guid>http://chuxiuhong.com/post/manjaro-v2ray-setup/</guid><description>题外话：最近一直想写一个实验，实验平台又必须用到Linux或者MacOS来搞，然而本机Win10本身带着Docker，虚拟机有冲突，WSL又</description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Manjaro on 唯心不易</title>
+    <link>http://chuxiuhong.com/tags/manjaro/</link>
+    <description>Recent content in Manjaro on 唯心不易</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Wed, 05 May 2021 20:46:52 +0800</lastBuildDate>
+    
+	<atom:link href="http://chuxiuhong.com/tags/manjaro/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Manjaro设置V2ray</title>
+      <link>http://chuxiuhong.com/post/manjaro-v2ray-setup/</link>
+      <pubDate>Wed, 05 May 2021 20:46:52 +0800</pubDate>
+      
+      <guid>http://chuxiuhong.com/post/manjaro-v2ray-setup/</guid>
+      <description>题外话：最近一直想写一个实验，实验平台又必须用到Linux或者MacOS来搞，然而本机Win10本身带着Docker，虚拟机有冲突，WSL又</description>
+    </item>
+    
+  </channel>
+</rss>
